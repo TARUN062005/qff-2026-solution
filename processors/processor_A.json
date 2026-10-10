@@ -1,0 +1,33 @@
+{
+  "name": "Processor A",
+  "identifier": "A",
+  "role": "online_phase1",
+  "num_qubits": 5,
+  "qubits": [0, 1, 2, 3, 4],
+  "coupling_map": [[0, 1], [1, 2], [2, 3], [3, 4]],
+  "connectivity": "undirected",
+  "basis_gates": ["rz", "sx", "x", "cx"],
+  "gate_directionality": "bidirectional",
+  "display_positions": {
+    "0": [0.0, 0.0],
+    "1": [1.0, 0.0],
+    "2": [2.0, 0.0],
+    "3": [3.0, 0.0],
+    "4": [4.0, 0.0]
+  },
+  "noise": {
+    "label": "provisional_illustrative",
+    "one_qubit_depolarizing_probability": 0.001,
+    "one_qubit_gates": ["x", "sx"],
+    "two_qubit_depolarizing_probability": 0.01,
+    "two_qubit_gates": ["cx"],
+    "readout_probabilities": [[0.99, 0.01], [0.02, 0.98]],
+    "rz_noise": "none"
+  },
+  "provenance": {
+    "status": "provisional",
+    "official": false,
+    "source": "Phase 1 Challenge Guide, section 6, illustrative toy_5q_line example: qubits 0-1-2-3-4 and basis gates rz, sx, x, cx. The guide says to replace illustrative values with the organizer-supplied definition. The Qiskit Fall Fest 2026 guideline states that Processor A has 5 qubits, a fixed baseline graph, and a synthetic noise model, but it does not list edges, directions, or error rates. The qualitative processor slide was not converted into an edge list. Noise numbers are the illustrative depolarizing and readout values in Challenge Guide section 10, applied identically on Processor A and Processor B.",
+    "noise_source": "Challenge Guide section 10 illustrative noise model, explicitly labeled there as a placeholder for official challenge assumptions."
+  }
+}

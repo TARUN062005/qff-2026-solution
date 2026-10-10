@@ -1,0 +1,471 @@
+{
+  "success": true,
+  "official_benchmark_complete": false,
+  "blocking_specifications": [
+    "The supplied Phase 1 documents do not list Processor A's coupling edges, edge direction, or native-gate constraints.",
+    "The supplied Phase 1 documents do not list Processor B's coupling edges. The configured map is the published ibm_lagos fragment, not an organizer definition.",
+    "The supplied Phase 1 documents do not include the official weighted Max-Cut graph, weights, or constraints for O1.",
+    "QAOA depth, parameter initialization, optimizer budget, and shot count are not specified by the supplied documents. The configured values are provisional defaults.",
+    "The noise rates are the Challenge Guide's illustrative example, and the guide says to replace them with the official assumptions."
+  ],
+  "team": "Q-TEAM",
+  "event": "Qiskit Fall Fest 2026",
+  "phase": "Phase 1",
+  "track": "Quantum Optimization",
+  "problem_code": "O1",
+  "dashboard_identifier": "PS-O1",
+  "problem_title": "Max-Cut on Weighted Graphs",
+  "comparison_type": "shared_parameter_architecture_comparison",
+  "stage": "complete",
+  "started_utc": "2026-10-10T04:05:33.310541+00:00",
+  "finished_utc": "2026-10-10T04:05:34.773680+00:00",
+  "config_path": "D:/QISKIT SRM/config/experiment.json",
+  "config_sha256": "0cd323d5c7a1f2e5b659cfc965ca298221e82dfcff4b5f29529ac01248a72a8c",
+  "settings": {
+    "team": "Q-TEAM",
+    "event": "Qiskit Fall Fest 2026",
+    "phase": "Phase 1",
+    "track": "Quantum Optimization",
+    "problem_code": "O1",
+    "dashboard_identifier": "PS-O1",
+    "problem_title": "Max-Cut on Weighted Graphs",
+    "instance_path": "D:/QISKIT SRM/data/raw/maxcut_provisional.json",
+    "processors": {
+      "A": "D:/QISKIT SRM/processors/processor_A.json",
+      "B": "D:/QISKIT SRM/processors/processor_B.json"
+    },
+    "qaoa_depth": 1,
+    "comparison_type": "shared_parameter_architecture_comparison",
+    "optimizer": {
+      "method": "grid_then_cobyla",
+      "grid_gamma_points": 21,
+      "grid_beta_points": 21,
+      "gamma_upper": 3.141592653589793,
+      "beta_upper": 1.5707963267948966,
+      "cobyla_maxiter": 40,
+      "cobyla_rhobeg": 0.2,
+      "cobyla_tol": 1e-06
+    },
+    "initial_parameters": [
+      0.6,
+      0.4
+    ],
+    "shots": 4096,
+    "optimization_level": 1,
+    "seed_transpiler": 20261010,
+    "seed_simulator": 20261010,
+    "layout_method": "sabre",
+    "routing_method": "sabre",
+    "execution_modes": [
+      "ideal",
+      "provisional_noise"
+    ],
+    "output_dir": "D:/QISKIT SRM/results"
+  },
+  "execution_modes": [
+    "ideal",
+    "provisional_noise"
+  ],
+  "shots": 4096,
+  "optimization_level": 1,
+  "layout_method": "sabre",
+  "routing_method": "sabre",
+  "seed_transpiler": 20261010,
+  "seed_simulator": 20261010,
+  "basis_gates_identical": true,
+  "noise_rates_identical": true,
+  "instance": {
+    "instance_id": "provisional-weighted-maxcut-5",
+    "official": false,
+    "sha256": "8e163ca9eb6d4571cb1491a8299b3986de4266a2b0234d31d904346f48f8739d",
+    "num_vertices": 5,
+    "num_edges": 7,
+    "connected": true,
+    "provenance": "Participant-defined provisional weighted graph. The supplied Phase 1 documents name O1 Max-Cut but do not include an official vertex set, edge list, weights, QAOA depth, shot count, or optimizer budget. This file is the controlled instance for the local provisional benchmark and must be replaced when the Challenge Kit instance is issued. It is not a substitute labeled as official."
+  },
+  "classical_reference": {
+    "objective_value": 9.5,
+    "assignment": [
+      1,
+      1,
+      0,
+      1,
+      0
+    ],
+    "cut_value": 9.5,
+    "method": "exhaustive_enumeration",
+    "optimal": true
+  },
+  "qaoa": {
+    "depth": 1,
+    "method": "grid_then_cobyla",
+    "parameters": [
+      0.36578315088218344,
+      0.37018328088858676
+    ],
+    "ideal_expected_cut": 7.815126787191614,
+    "evaluation_count": 481,
+    "cobyla_success": false,
+    "cobyla_message": "Return from COBYLA because the objective function has been evaluated MAXFUN times.",
+    "cobyla_nfev": 40,
+    "configured_initial_parameters": [
+      0.6,
+      0.4
+    ],
+    "parameter_source": "shared ideal statevector optimization, applied unchanged to both processors"
+  },
+  "processors": {
+    "A": {
+      "name": "Processor A",
+      "identifier": "A",
+      "official": false,
+      "provenance_status": "provisional",
+      "provenance_source": "Phase 1 Challenge Guide, section 6, illustrative toy_5q_line example: qubits 0-1-2-3-4 and basis gates rz, sx, x, cx. The guide says to replace illustrative values with the organizer-supplied definition. The Qiskit Fall Fest 2026 guideline states that Processor A has 5 qubits, a fixed baseline graph, and a synthetic noise model, but it does not list edges, directions, or error rates. The qualitative processor slide was not converted into an edge list. Noise numbers are the illustrative depolarizing and readout values in Challenge Guide section 10, applied identically on Processor A and Processor B.",
+      "num_qubits": 5,
+      "coupling_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "basis_gates": [
+        "rz",
+        "sx",
+        "x",
+        "cx"
+      ],
+      "noise": {
+        "label": "provisional_illustrative",
+        "one_qubit_depolarizing_probability": 0.001,
+        "one_qubit_gates": [
+          "x",
+          "sx"
+        ],
+        "two_qubit_depolarizing_probability": 0.01,
+        "two_qubit_gates": [
+          "cx"
+        ],
+        "readout_probabilities": [
+          [
+            0.99,
+            0.01
+          ],
+          [
+            0.02,
+            0.98
+          ]
+        ],
+        "rz_noise": "none"
+      },
+      "sha256": "4f4a114872d2627e4443eb687f3f27eaa4f7ff87f560dd2834045e37e5d79770",
+      "instance_sha256": "8e163ca9eb6d4571cb1491a8299b3986de4266a2b0234d31d904346f48f8739d",
+      "resources": {
+        "logical_depth": 8,
+        "transpiled_depth": 33,
+        "logical_operation_count": 17,
+        "transpiled_operation_count": 74,
+        "logical_two_qubit_count": 7,
+        "transpiled_two_qubit_count": 27,
+        "cx_count": 27,
+        "explicit_swap_count": 0,
+        "logical_rzz_count": 7,
+        "routing_overhead_cx": 13,
+        "logical_qubits": 5,
+        "physical_qubits_allocated": 5,
+        "physical_qubits_used": 5,
+        "ancillas_used": 0,
+        "compilation_seconds": 0.14255039999261498,
+        "final_index_layout": [
+          3,
+          0,
+          2,
+          1,
+          4
+        ],
+        "measurement_decoder": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "executions": {
+        "ideal": {
+          "shots": 4096,
+          "expected_cut": 7.8299560546875,
+          "expected_cut_standard_error": 0.02745015220644388,
+          "best_observed_cut": 9.5,
+          "approximation_ratio": 0.824205900493421,
+          "approximation_ratio_standard_error": 0.0028894897059414614,
+          "approximation_reference": "exact_optimum",
+          "optimal_success_probability": 0.24853515625,
+          "optimal_success_standard_error": 0.006752557247756261,
+          "histogram": {
+            "0": 30,
+            "3.5": 46,
+            "4": 36,
+            "4.5": 265,
+            "5": 15,
+            "5.5": 84,
+            "6": 360,
+            "7": 804,
+            "8.5": 728,
+            "9": 710,
+            "9.5": 1018
+          },
+          "execution_seconds": 0.02378250000765547,
+          "seed_simulator": 20261010,
+          "simulator": "qiskit_aer.AerSimulator",
+          "noise_model": "none",
+          "consistent_with_statevector": true
+        },
+        "provisional_noise": {
+          "shots": 4096,
+          "expected_cut": 7.3935546875,
+          "expected_cut_standard_error": 0.0305430458612831,
+          "best_observed_cut": 9.5,
+          "approximation_ratio": 0.7782689144736842,
+          "approximation_ratio_standard_error": 0.0032150574590824317,
+          "approximation_reference": "exact_optimum",
+          "optimal_success_probability": 0.2001953125,
+          "optimal_success_standard_error": 0.006252287654632218,
+          "histogram": {
+            "0": 35,
+            "3.5": 124,
+            "4": 53,
+            "4.5": 385,
+            "5": 114,
+            "5.5": 120,
+            "6": 413,
+            "7": 786,
+            "8.5": 617,
+            "9": 629,
+            "9.5": 820
+          },
+          "execution_seconds": 0.04471789998933673,
+          "seed_simulator": 20261010,
+          "simulator": "qiskit_aer.AerSimulator",
+          "noise_model": "provisional_illustrative"
+        }
+      }
+    },
+    "B": {
+      "name": "Processor B",
+      "identifier": "B",
+      "official": false,
+      "provenance_status": "provisional",
+      "provenance_source": "The Phase 1 guideline describes Processor B as a 7-qubit heavy-hex-inspired graph and a contemporary compilation baseline, without an edge list. The undirected edges here are the published CX coupling of the 7-qubit IBM Quantum Lagos device, read from Qiskit IBM Runtime props_lagos.json pairs cx0_1, cx1_2, cx1_3, cx3_5, cx4_5, and cx5_6. That fragment is a tree, not a 6-cycle, and it is not a tracing of the qualitative challenge slide. It is a replaceable stand-in, not an organizer-issued Processor B definition. Device calibration data from Lagos are not used. Noise numbers match the illustrative Challenge Guide section 10 model used for Processor A so the noisy comparison is not confounded by unequal error rates.",
+      "num_qubits": 7,
+      "coupling_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          5,
+          6
+        ]
+      ],
+      "basis_gates": [
+        "rz",
+        "sx",
+        "x",
+        "cx"
+      ],
+      "noise": {
+        "label": "provisional_illustrative",
+        "one_qubit_depolarizing_probability": 0.001,
+        "one_qubit_gates": [
+          "x",
+          "sx"
+        ],
+        "two_qubit_depolarizing_probability": 0.01,
+        "two_qubit_gates": [
+          "cx"
+        ],
+        "readout_probabilities": [
+          [
+            0.99,
+            0.01
+          ],
+          [
+            0.02,
+            0.98
+          ]
+        ],
+        "rz_noise": "none"
+      },
+      "sha256": "c686fc273a5a2549dc33051e6b00fd777c934cbfef7bd3e61f7539e3479ee618",
+      "instance_sha256": "8e163ca9eb6d4571cb1491a8299b3986de4266a2b0234d31d904346f48f8739d",
+      "resources": {
+        "logical_depth": 8,
+        "transpiled_depth": 41,
+        "logical_operation_count": 17,
+        "transpiled_operation_count": 68,
+        "logical_two_qubit_count": 7,
+        "transpiled_two_qubit_count": 21,
+        "cx_count": 21,
+        "explicit_swap_count": 0,
+        "logical_rzz_count": 7,
+        "routing_overhead_cx": 7,
+        "logical_qubits": 5,
+        "physical_qubits_allocated": 7,
+        "physical_qubits_used": 5,
+        "ancillas_used": 0,
+        "compilation_seconds": 0.012601499969605356,
+        "final_index_layout": [
+          5,
+          1,
+          4,
+          3,
+          6
+        ],
+        "measurement_decoder": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "executions": {
+        "ideal": {
+          "shots": 4096,
+          "expected_cut": 7.8299560546875,
+          "expected_cut_standard_error": 0.02745015220644388,
+          "best_observed_cut": 9.5,
+          "approximation_ratio": 0.824205900493421,
+          "approximation_ratio_standard_error": 0.0028894897059414614,
+          "approximation_reference": "exact_optimum",
+          "optimal_success_probability": 0.24853515625,
+          "optimal_success_standard_error": 0.006752557247756261,
+          "histogram": {
+            "0": 30,
+            "3.5": 46,
+            "4": 36,
+            "4.5": 265,
+            "5": 15,
+            "5.5": 84,
+            "6": 360,
+            "7": 804,
+            "8.5": 728,
+            "9": 710,
+            "9.5": 1018
+          },
+          "execution_seconds": 0.012110199953895062,
+          "seed_simulator": 20261010,
+          "simulator": "qiskit_aer.AerSimulator",
+          "noise_model": "none",
+          "consistent_with_statevector": true
+        },
+        "provisional_noise": {
+          "shots": 4096,
+          "expected_cut": 7.4501953125,
+          "expected_cut_standard_error": 0.03022549663344525,
+          "best_observed_cut": 9.5,
+          "approximation_ratio": 0.7842310855263158,
+          "approximation_ratio_standard_error": 0.003181631224573184,
+          "approximation_reference": "exact_optimum",
+          "optimal_success_probability": 0.208251953125,
+          "optimal_success_standard_error": 0.006344655822502228,
+          "histogram": {
+            "0": 34,
+            "3.5": 114,
+            "4": 55,
+            "4.5": 364,
+            "5": 95,
+            "5.5": 118,
+            "6": 411,
+            "7": 796,
+            "8.5": 621,
+            "9": 635,
+            "9.5": 853
+          },
+          "execution_seconds": 0.040454199945088476,
+          "seed_simulator": 20261010,
+          "simulator": "qiskit_aer.AerSimulator",
+          "noise_model": "provisional_illustrative"
+        }
+      }
+    }
+  },
+  "environment": {
+    "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+    "packages": {
+      "qiskit": "2.5.2",
+      "qiskit-aer": "0.17.2",
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "networkx": "3.6.1",
+      "matplotlib": "3.11.2",
+      "pillow": "12.3.0",
+      "pylatexenc": "2.11"
+    }
+  },
+  "hardware_execution": false,
+  "artifacts": {
+    "report": "D:/QISKIT SRM/report.md",
+    "tables": "D:/QISKIT SRM/results/tables",
+    "figures": "D:/QISKIT SRM/results/figures",
+    "circuits": "D:/QISKIT SRM/results/circuits"
+  }
+}
