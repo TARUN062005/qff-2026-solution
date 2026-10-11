@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import math
+from pathlib import Path
 
 import numpy as np
 from qiskit import QuantumCircuit
 from qiskit.quantum_info import Statevector
 
+from src.config import load_experiment_config
 from src.max_cut import build_instance, cut_value
+from src.optimization import optimize_shared_parameters
 from src.qaoa import (
     QaoaError,
     bind_qaoa_parameters,
@@ -83,6 +86,48 @@ def test_measurement_mapping_and_plus_state_expectation() -> None:
     second = expected_cut_from_statevector(bound, instance)
     assert math.isclose(first, 1.0)
     assert math.isclose(first, second)
+
+
+def test_optional_depth_two_cobyla_does_not_replace_the_baseline() -> None:
+    root = Path(__file__).resolve().parents[1]
+    baseline = load_experiment_config(root / "config" / "experiment.json", root)
+    optional = load_experiment_config(root / "config" / "experiment_p2_provisional.json", root)
+    assert baseline.qaoa_depth == 1
+    assert baseline.optimizer.method == "grid_then_cobyla"
+    assert optional.qaoa_depth == 2
+    assert optional.optimizer.method == "cobyla_only"
+    assert optional.output_dir != baseline.output_dir
+    instance = build_instance([0, 1], [(0, 1, 1.0)], instance_id="depth-two")
+    result = optimize_shared_parameters(
+        instance,
+        2,
+        "cobyla_only",
+        [0.2, 0.1, 0.2, 0.1],
+        2,
+        2,
+        math.pi,
+        math.pi / 2,
+        6,
+        0.2,
+        1e-4,
+    )
+    assert result["method"] == "cobyla_only"
+    assert len(result["parameters"]) == 4
+    assert math.isfinite(float(result["ideal_expected_cut"]))
+    with pytest.raises(QaoaError, match="depth 1"):
+        optimize_shared_parameters(
+            instance,
+            2,
+            "grid_then_cobyla",
+            [0.2, 0.1, 0.2, 0.1],
+            2,
+            2,
+            math.pi,
+            math.pi / 2,
+            6,
+            0.2,
+            1e-4,
+        )
 
 
 def test_invalid_depth_and_parameter_count() -> None:

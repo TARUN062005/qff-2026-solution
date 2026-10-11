@@ -57,8 +57,23 @@ def circuit_instruction_metrics(circuit: QuantumCircuit) -> dict[str, int]:
     }
 
 
+def _nonnegative_count(value: int, label: str) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        raise ValueError(f"{label} must be a non-negative integer.")
+    return value
+
+
+def cx_excess_over_rzz_baseline(cx_count: int, logical_rzz_count: int) -> int:
+    return _nonnegative_count(cx_count, "cx_count") - 2 * _nonnegative_count(logical_rzz_count, "logical_rzz_count")
+
+
+def explicit_swap_cx_equivalent(explicit_swap_count: int) -> int:
+    return 3 * _nonnegative_count(explicit_swap_count, "explicit_swap_count")
+
+
 def routing_overhead_cx(cx_count: int, explicit_swap_count: int, logical_rzz_count: int) -> int:
-    return cx_count + 3 * explicit_swap_count - 2 * logical_rzz_count
+    _nonnegative_count(explicit_swap_count, "explicit_swap_count")
+    return cx_excess_over_rzz_baseline(cx_count, logical_rzz_count)
 
 
 def logical_rzz_count(circuit: QuantumCircuit) -> int:
@@ -105,6 +120,8 @@ def summarize_cut_samples(
         "expected_cut_standard_error": standard_error,
         "best_observed_cut": best,
         "approximation_ratio": ratio,
+        "expected_cut_approximation_ratio": ratio,
+        "best_cut_approximation_ratio": None if reference_value <= 0 else best / reference_value,
         "approximation_ratio_standard_error": ratio_error,
         "approximation_reference": "exact_optimum" if reference_is_exact else "best_known",
         "optimal_success_probability": success,

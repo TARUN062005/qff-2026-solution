@@ -2,7 +2,13 @@ from __future__ import annotations
 
 from qiskit import QuantumCircuit, transpile
 
-from src.metrics import circuit_instruction_metrics, logical_rzz_count, routing_overhead_cx
+from src.metrics import (
+    circuit_instruction_metrics,
+    cx_excess_over_rzz_baseline,
+    explicit_swap_cx_equivalent,
+    logical_rzz_count,
+    routing_overhead_cx,
+)
 from src.processor_model import ProcessorModel
 
 
@@ -122,7 +128,9 @@ def resource_report(
         "transpiled_two_qubit_count": compiled["two_qubit_count"],
         "cx_count": compiled["cx_count"],
         "explicit_swap_count": compiled["explicit_swap_count"],
+        "explicit_swap_cx_equivalent": explicit_swap_cx_equivalent(compiled["explicit_swap_count"]),
         "logical_rzz_count": rzz_count,
+        "cx_excess_over_rzz_baseline": cx_excess_over_rzz_baseline(compiled["cx_count"], rzz_count),
         "routing_overhead_cx": routing_overhead_cx(
             compiled["cx_count"],
             compiled["explicit_swap_count"],

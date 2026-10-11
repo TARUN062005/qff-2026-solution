@@ -260,6 +260,12 @@ def processor_from_mapping(payload: dict[str, object]) -> ProcessorModel:
         raise ProcessorModelError("provenance.official must be a boolean.")
     if not isinstance(provenance_map.get("source"), str) or not provenance_map.get("source"):
         raise ProcessorModelError("provenance.source must be a non-empty string.")
+    if provenance_map.get("official") is True:
+        kit_file = provenance_map.get("challenge_kit_file")
+        if not isinstance(kit_file, str) or not kit_file.strip():
+            raise ProcessorModelError(
+                "official processors require provenance.challenge_kit_file naming the issued Challenge Kit file."
+            )
     role = payload.get("role", "unspecified")
     if not isinstance(role, str):
         raise ProcessorModelError("role must be a string.")

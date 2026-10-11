@@ -56,7 +56,9 @@ The search is a 21 by 21 grid of `gamma` in `[0, pi]` and `beta` in `[0, pi/2]`,
 
 ## Processors
 
-Both definitions are provisional. The guideline gives qubit counts and qualitative names. It does not list edges. The slide was not traced into a coupling map.
+Both executable definitions used for the recorded results are provisional. Processor A was the 5-qubit linear path. Processor B was the 7-qubit Lagos fragment. Those configurations do not represent the final organizer-confirmed architectures.
+
+The uploaded Processor A diagram is an unlabeled five-node tree, so its exact numbered coupling map remains unverified. The organizer later corrected Processor B to nine qubits. That count takes precedence, and the full nine-qubit coupling map has not been supplied. The noise model and the Max-Cut graph are illustrative and provisional. `official_benchmark_complete` remains false.
 
 | | Processor A | Processor B |
 | --- | --- | --- |
@@ -72,15 +74,13 @@ Details are in `docs/processor_specifications.md` and `docs/methodology.md`.
 
 ## Transpilation
 
-Both processors use optimization level 1, Sabre layout, Sabre routing, and transpiler seed `20261010`. One logical `RZZ` becomes two `CX` gates on an all-to-all device with this basis. Explicit `SWAP` instructions are counted separately and charged as three `CX` gates. Routing overhead is
+Both processors use optimization level 1, Sabre layout, Sabre routing, and transpiler seed `20261010`. One logical `RZZ` becomes two `CX` gates on an all-to-all device with this basis. Routing overhead is the transpiled CX count minus twice the logical RZZ count. Explicit SWAP instructions are counted separately and are not added to that excess, so decomposed SWAP CX gates are not charged again. After basis translation the explicit SWAP count in the preserved run is zero. The extra CX gates are the routing and decomposition residue under this optimization level, not a direct inserted-SWAP count. Compiler optimization can also change the CX count. Measurement bits are mapped back to logical vertices with the final layout.
 
-`transpiled CX count + 3 * explicit SWAP count - 2 * logical RZZ count`.
-
-After basis translation the explicit SWAP count is zero. The extra CX gates are the routing and decomposition residue under this optimization level. Measurement bits are mapped back to logical vertices with the final layout.
+The approximation ratio in the preserved table is `E[C] / C_ref`. The best observed cut on every preserved row is 9.5, so `C_best / C_ref` is 1 for this provisional reference. Those are different ratios.
 
 ## Measured A/B results
 
-Shots: 4096. Simulator seed: `20261010`. Authoritative rows are in `results/tables/AB_comparison.csv`. Rounded values:
+These figures are the preserved provisional run on the 5-qubit linear Processor A model and the 7-qubit Lagos-fragment Processor B model. They are not results for the organizer-confirmed architectures. Shots: 4096. Simulator seed: `20261010`. Authoritative rows are in `results/tables/AB_comparison.csv`. Rounded values:
 
 | Metric | Processor A | Processor B |
 | --- | ---: | ---: |
@@ -149,7 +149,11 @@ Run the notebook from the repository root so `Path.cwd()` is the project directo
 
 ## Limitations
 
-- Official Processor A edges, Processor B edges, noise rates, the O1 graph, QAOA depth, and the shot budget were not in the supplied documents.
+- The stored benchmark is a provisional run on the 5-qubit linear Processor A model and the 7-qubit Lagos-fragment Processor B model. Those configurations do not represent the final organizer-confirmed architectures.
+- The Processor A diagram is an unlabeled five-node tree. Its exact numbered coupling map remains unverified.
+- Processor B must use nine qubits according to the organizer's correction. The full coupling map has not been supplied.
+- The current noise model and Max-Cut graph are illustrative and provisional. `official_benchmark_complete` remains false.
+- Official Processor A edges, the nine-qubit Processor B edges, noise rates, the O1 graph, QAOA depth, and the shot budget were not in the supplied documents.
 - The configured noise rates are identical on purpose. A real device comparison could differ in gate errors as well as connectivity.
 - One Sabre seed is one layout sample.
 - COBYLA stopped at its evaluation cap. The kept parameters are the best evaluated point, not a claim that the local solver certified a global maximum.
@@ -166,7 +170,7 @@ Run the notebook from the repository root so `Path.cwd()` is the project directo
 
 ## AI assistance
 
-Cursor Grok assisted with the implementation, tests, figures, and documentation. The Phase 1 instructions require the team to understand, verify, and take responsibility for the submission, and to disclose AI assistance when the organizer policy requires it. Verification recorded here is the pytest run and the seeded benchmark that wrote `results/`.
+Cursor Grok assisted with the implementation, tests, figures, and documentation. The Phase 1 instructions require the team to understand, verify, and take responsibility for the submission, and to disclose AI assistance when the organizer policy requires it. `docs/ai_prompt.md` is a reconstructed summary of that assistance, and `docs/adrs.md` records the architectural decisions present in this repository. Verification recorded here is the pytest run and the seeded benchmark that wrote `results/`.
 
 ## Publishing to GitHub
 

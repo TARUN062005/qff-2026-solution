@@ -4,7 +4,7 @@ from pathlib import Path
 
 from qiskit import QuantumCircuit
 
-from src.metrics import circuit_instruction_metrics, routing_overhead_cx
+from src.metrics import circuit_instruction_metrics, explicit_swap_cx_equivalent, routing_overhead_cx
 from src.processor_model import load_processor
 from src.simulator import execute_counts
 from src.transpilation import compile_for_processor, measurement_decoder, validate_compiled_circuit
@@ -60,7 +60,20 @@ def test_swap_count_is_separate_from_decomposed_routing() -> None:
     assert metrics["cx_count"] == 1
     assert metrics["two_qubit_count"] == 2
     assert metrics["operation_count"] == 3
-    assert routing_overhead_cx(metrics["cx_count"], metrics["explicit_swap_count"], logical_rzz_count=1) == 2
+    assert explicit_swap_cx_equivalent(metrics["explicit_swap_count"]) == 3
+    assert routing_overhead_cx(metrics["cx_count"], metrics["explicit_swap_count"], logical_rzz_count=1) == -1
+
+
+def test_nine_qubit_schema_fixture_accepts_a_small_circuit() -> None:
+    processor = load_processor(ROOT / "processors" / "fixtures" / "nine_qubit_schema_not_official.json")
+    circuit = QuantumCircuit(2, 2)
+    circuit.h(0)
+    circuit.cx(0, 1)
+    circuit.measure(range(2), range(2))
+    compiled = compile_for_processor(circuit, processor, 1, 3, "sabre", "sabre")
+    validate_compiled_circuit(compiled, processor)
+    assert compiled.num_qubits == 9
+    assert processor.provenance["official"] is False
 
 
 def test_processor_rejects_a_circuit_that_does_not_fit() -> None:

@@ -28,11 +28,15 @@ Logical measurement outcomes are recovered from the transpiler final layout toge
 
 ## Routing metric
 
-On this basis, one logical RZZ decomposes to two CX gates when the qubits are already adjacent. An explicit SWAP that has not been decomposed is charged as three CX gates. The CX-equivalent routing overhead is
+On this basis, one logical RZZ decomposes to two CX gates when the qubits are already adjacent. The reported routing overhead is
 
-`transpiled CX count + 3 * explicit SWAP count - 2 * logical RZZ count`.
+`transpiled CX count - 2 * logical RZZ count`.
 
-A zero SWAP count means SWAP instructions were decomposed or avoided. Optimization can cancel gates, so the overhead can be smaller than a hand count of inserted SWAPs and can be negative. The same optimization level, layout method, routing method, and transpiler seed are used for both processors. One seed is one layout sample, not an average over Sabre.
+Explicit SWAP instructions are counted separately. Three CX per remaining SWAP is recorded as its own quantity and is not added to the CX excess. Adding both would count a SWAP twice when its CX gates are already in the transpiled CX count. A zero SWAP count means no SWAP instruction remains. It does not mean routing added no CX gates. Optimization can cancel gates, so the excess can be smaller than a hand count of inserted SWAPs and can be negative. The same optimization level, layout method, routing method, and transpiler seed are used for both processors. One seed is one layout sample, not an average over Sabre.
+
+`approximation_ratio` in the result tables is the expected-cut ratio `E[C] / C_ref`. `best_cut_approximation_ratio` is `C_best / C_ref`. They are different quantities. The preserved provisional tables were written before the best-cut column existed. On that run every mode recorded a best observed cut of 9.5, so `C_best / C_ref` is 1 for the provisional reference 9.5.
+
+Depth `p = 2` is available as an optional provisional config at `config/experiment_p2_provisional.json`. It uses `cobyla_only`, writes to `results/optional_p2_provisional`, and was not executed for the preserved baseline. The grid optimizer remains depth 1. No source in this repository requires SamplerV2.
 
 ## Execution
 
@@ -41,5 +45,7 @@ Ideal runs use Qiskit Aer with no noise model. Provisional noisy runs use the il
 The expected-cut standard error is the square root of the plug-in one-shot variance divided by the number of shots. The binomial standard error is used only for the optimal-shot proportion. If the exact optimum is zero, the approximation ratio is left undefined.
 
 ## What would make the benchmark official
+
+The recorded results use the 5-qubit linear Processor A model and the 7-qubit Lagos-fragment Processor B model, together with the illustrative noise block and the provisional Max-Cut graph. Those files do not represent the final organizer-confirmed architectures. The Processor A diagram is an unlabeled five-node tree, so its numbered coupling map is still unverified. Processor B must have nine qubits under the organizer's correction, and that coupling map has not been supplied.
 
 Replace `data/raw/maxcut_provisional.json`, `processors/processor_A.json`, and `processors/processor_B.json` with the organizer files, set their official flags only when those files are the issued definitions, and keep the runner's shared settings. Until that replacement, `official_benchmark_complete` stays false.

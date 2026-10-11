@@ -20,6 +20,8 @@ python scripts/generate_report.py
 
 ## What is recorded
 
+The files under `results/` and the numerical sections of `report.md` record one provisional run. That run used the 5-qubit linear Processor A model and the 7-qubit Lagos-fragment Processor B model, the illustrative noise model, and the provisional Max-Cut graph. Those configurations do not represent the final organizer-confirmed architectures. Processor A's diagram is an unlabeled five-node tree, so its numbered coupling map is unverified. Processor B must use nine qubits under the organizer's correction, and the full coupling map has not been supplied. `official_benchmark_complete` in the manifest is false.
+
 The manifest at `results/manifests/experiment_manifest.json` stores the instance SHA-256, both processor SHA-256 values, QAOA depth, the shared parameter vector, the optimizer budget, the transpiler settings, the simulator seed, the shot count, the noise provenance, circuit metrics, and the run status. Count histograms and OpenQASM circuits are stored beside it. Derived tables and figures are regenerated from those outputs by the same command.
 
 ## Controls that stay fixed across A and B
@@ -32,4 +34,4 @@ Cursor Grok was used to implement, test, and document this repository. The Phase
 
 ## Official kit
 
-Do not mark a file official unless it is the file issued for the challenge. Keep optional studies out of `config/experiment.json`. Smoke and unit tests write to a temporary directory and use a smaller budget; they are not the Phase 1 result tables.
+Do not mark a file official unless it is the file issued for the challenge. An official processor file must also name `provenance.challenge_kit_file`. Keep optional studies out of `config/experiment.json`. `config/experiment_p2_provisional.json` is an optional depth-2 study and was not executed. Smoke and unit tests write to a temporary directory and use a smaller budget; they are not the Phase 1 result tables. The current manifest stores repository-relative paths for the config, instance, processor files, output directory, and artifact folders. Hashes and seeds are unchanged by that path formatting.

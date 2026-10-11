@@ -5,7 +5,14 @@ import math
 import pytest
 
 from src.max_cut import build_instance
-from src.metrics import proportion_standard_error, routing_overhead_cx, samples_from_counts, summarize_cut_samples
+from src.metrics import (
+    cx_excess_over_rzz_baseline,
+    explicit_swap_cx_equivalent,
+    proportion_standard_error,
+    routing_overhead_cx,
+    samples_from_counts,
+    summarize_cut_samples,
+)
 
 
 def test_proportion_standard_error() -> None:
@@ -21,6 +28,8 @@ def test_expected_cut_uncertainty_and_zero_optimum() -> None:
     assert math.isclose(summary["expected_cut"], 1.0)
     assert math.isclose(summary["expected_cut_standard_error"], math.sqrt(1.0 / 2.0))
     assert math.isclose(summary["approximation_ratio"], 0.25)
+    assert math.isclose(summary["expected_cut_approximation_ratio"], 0.25)
+    assert math.isclose(summary["best_cut_approximation_ratio"], 0.5)
     zero = summarize_cut_samples([(0.0, 8)], 0.0, True)
     assert zero["approximation_ratio"] is None
     assert math.isclose(zero["optimal_success_probability"], 1.0)
@@ -34,8 +43,12 @@ def test_unknown_optimum_does_not_report_success_probability() -> None:
 
 
 def test_routing_definition_and_sample_decoder() -> None:
+    assert cx_excess_over_rzz_baseline(10, 4) == 2
     assert routing_overhead_cx(cx_count=10, explicit_swap_count=0, logical_rzz_count=4) == 2
-    assert routing_overhead_cx(cx_count=4, explicit_swap_count=1, logical_rzz_count=3) == 1
+    assert routing_overhead_cx(cx_count=10, explicit_swap_count=2, logical_rzz_count=4) == 2
+    assert explicit_swap_cx_equivalent(2) == 6
+    assert routing_overhead_cx(cx_count=3, explicit_swap_count=1, logical_rzz_count=0) == 3
+    assert explicit_swap_cx_equivalent(1) + routing_overhead_cx(3, 1, 0) == 6
     instance = build_instance([0, 1], [(0, 1, 2.5)])
     samples = samples_from_counts({"01": 3, "10": 1}, {0: 0, 1: 1}, instance)
     summary = summarize_cut_samples(samples, 2.5, True)

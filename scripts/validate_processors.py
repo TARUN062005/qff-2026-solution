@@ -11,8 +11,13 @@ from src.processor_model import load_processor
 
 
 def main() -> int:
-    for name in ("processor_A.json", "processor_B.json"):
-        processor = load_processor(ROOT / "processors" / name)
+    paths = [
+        ROOT / "processors" / "processor_A.json",
+        ROOT / "processors" / "processor_B.json",
+        ROOT / "processors" / "fixtures" / "nine_qubit_schema_not_official.json",
+    ]
+    for path in paths:
+        processor = load_processor(path)
         graph = processor.networkx_graph()
         print(
             processor.identifier,

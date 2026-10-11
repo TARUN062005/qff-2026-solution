@@ -1,0 +1,35 @@
+{
+  "team": "Q-TEAM",
+  "event": "Qiskit Fall Fest 2026",
+  "phase": "Phase 1",
+  "track": "Quantum Optimization",
+  "problem_code": "O1",
+  "dashboard_identifier": "PS-O1",
+  "problem_title": "Max-Cut on Weighted Graphs",
+  "instance_path": "data/raw/maxcut_provisional.json",
+  "processors": {
+    "A": "processors/processor_A.json",
+    "B": "processors/processor_B.json"
+  },
+  "qaoa_depth": 2,
+  "comparison_type": "shared_parameter_architecture_comparison",
+  "optimizer": {
+    "method": "cobyla_only",
+    "grid_gamma_points": 2,
+    "grid_beta_points": 2,
+    "gamma_upper": 3.141592653589793,
+    "beta_upper": 1.5707963267948966,
+    "cobyla_maxiter": 20,
+    "cobyla_rhobeg": 0.2,
+    "cobyla_tol": 1e-6
+  },
+  "initial_parameters": [0.6, 0.4, 0.6, 0.4],
+  "shots": 1024,
+  "optimization_level": 1,
+  "seed_transpiler": 20261010,
+  "seed_simulator": 20261010,
+  "layout_method": "sabre",
+  "routing_method": "sabre",
+  "execution_modes": ["ideal"],
+  "output_dir": "results/optional_p2_provisional"
+}

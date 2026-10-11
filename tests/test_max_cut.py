@@ -90,10 +90,57 @@ def test_local_search_does_not_claim_optimality() -> None:
     assert math.isclose(reference.cut_value, cut_value(instance, reference.assignment))
 
 
+def _separate_exhaustive_optimum(
+    edges: list[tuple[int, int, float]],
+    vertex_count: int,
+) -> tuple[float, tuple[int, ...]]:
+    best_value = -math.inf
+    best_assignment = tuple(0 for _ in range(vertex_count))
+    for mask in range(1 << vertex_count):
+        assignment = tuple((mask >> vertex) & 1 for vertex in range(vertex_count))
+        total = 0.0
+        for u, v, weight in edges:
+            if assignment[u] != assignment[v]:
+                total += weight
+        if total > best_value:
+            best_value = total
+            best_assignment = assignment
+    return best_value, best_assignment
+
+
 def test_provisional_instance_file() -> None:
     instance = load_instance(ROOT / "data" / "raw" / "maxcut_provisional.json")
     assert instance.official is False
     assert instance.dashboard_identifier == "PS-O1"
     reference = solve_classical(instance)
+    separate_value, separate_assignment = _separate_exhaustive_optimum(
+        [(edge.u, edge.v, edge.weight) for edge in instance.edges],
+        instance.num_vertices,
+    )
     assert reference.optimal is True
+    assert math.isclose(separate_value, 9.5)
+    assert math.isclose(reference.objective_value, separate_value)
+    assert separate_assignment == reference.assignment
+    complement = tuple(1 - bit for bit in separate_assignment)
+    complement_total = 0.0
+    for edge in instance.edges:
+        if complement[edge.u] != complement[edge.v]:
+            complement_total += edge.weight
+    assert math.isclose(complement_total, 9.5)
     assert math.isclose(reference.cut_value, cut_value(instance, reference.assignment))
+
+
+def test_zero_weight_edge_and_rejected_boolean_weight() -> None:
+    instance = build_instance([0, 1, 2], [(0, 1, 0.0), (1, 2, 2.0)], instance_id="zero-weight")
+    reference = solve_classical(instance)
+    assert math.isclose(reference.objective_value, 2.0)
+    with pytest.raises(MaxCutError, match="finite"):
+        build_instance([0, 1], [(0, 1, True)])
+
+
+def test_in_memory_official_flag_is_distinct_from_the_provisional_file() -> None:
+    provisional = load_instance(ROOT / "data" / "raw" / "maxcut_provisional.json")
+    labeled = build_instance([0, 1], [(0, 1, 1.0)], instance_id="labeled", official=True)
+    assert provisional.official is False
+    assert labeled.official is True
+    assert labeled.instance_id != provisional.instance_id

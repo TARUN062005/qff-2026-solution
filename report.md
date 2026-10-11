@@ -2,7 +2,7 @@
 
 ## 1. Abstract
 
-This Phase 1 study implements weighted Max-Cut with the Quantum Approximate Optimization Algorithm and compiles the same parameterized circuit for two processor models. Shared parameters are chosen by an ideal statevector optimization, then both processors are executed with those parameters. Circuit cost, routing overhead, and shot-based cut statistics are compared. The organizer has not published the official coupling maps, noise model, or problem instance in the documents available to this repository, so the numerical results are a provisional controlled experiment.
+This Phase 1 study implements weighted Max-Cut with the Quantum Approximate Optimization Algorithm and compiles the same parameterized circuit for two processor models. Shared parameters are chosen by an ideal statevector optimization, then both processors are executed with those parameters. Circuit cost, routing overhead, and shot-based cut statistics are compared. Every number below comes from the preserved provisional run that used the 5-qubit linear Processor A model and the 7-qubit Lagos-fragment Processor B model. Those configurations do not represent the final organizer-confirmed architectures. The Processor A diagram is an unlabeled five-node tree, so its exact numbered coupling map remains unverified. Processor B must use nine qubits according to the organizer's correction, and the full coupling map has not been supplied. The noise model and the Max-Cut graph are illustrative and provisional. This report is not an official benchmark.
 
 ## 2. Problem statement
 
@@ -18,19 +18,19 @@ For an undirected weighted graph and a bit assignment x, the cut is the sum of w
 
 ## 5. Classical reference method
 
-Method: exhaustive_enumeration. Optimality guaranteed: True. Reference cut: 9.5000. Assignment, with vertex 0 in the first position: [1, 1, 0, 1, 0]. The assignment was evaluated again with the independent cut function before it was accepted. Instance `provisional-weighted-maxcut-5` has 5 vertices and 7 edges. Official instance: False.
+Method: exhaustive_enumeration. Optimality guaranteed: True. Reference cut: 9.5000. Assignment, with vertex 0 in the first position: [1, 1, 0, 1, 0]. The solver re-evaluated that assignment with the same cut function as a consistency check. A separate exhaustive enumeration in the test suite checks the provisional graph without calling that function. Instance `provisional-weighted-maxcut-5` has 5 vertices and 7 edges. Official instance: False. The reference cut belongs to this loaded instance. It is not an official O1 optimum.
 
 ## 6. QAOA circuit formulation
 
-Depth p = 1. Parameter vector, ordered gamma then beta: [0.36578315088218344, 0.37018328088858676]. The ideal statevector expectation at those parameters is 7.8151. Optimizer: grid_then_cobyla. Objective evaluations: 481. COBYLA reported success=False with message: Return from COBYLA because the objective function has been evaluated MAXFUN times.. For depth 1, a deterministic grid over gamma in [0, pi] and beta in [0, pi/2] supplies the COBYLA start. The configured initial vector is recorded for reproducibility and is not a second, processor-specific start.
+Depth p = 1. Parameter vector, ordered gamma then beta: [0.36578315088218344, 0.37018328088858676]. The ideal statevector expectation at those parameters is 7.8151. Optimizer: grid_then_cobyla. Objective evaluations: 481. COBYLA reported success=False with message: Return from COBYLA because the objective function has been evaluated MAXFUN times. For depth 1, a deterministic grid over gamma in [0, pi] and beta in [0, pi/2] supplies the COBYLA start. The configured initial vector is recorded for reproducibility and is not a second, processor-specific start.
 
 ## 7. Processor A specification and provenance
 
-Processor A is recorded as official=False, status `provisional`. It has 5 qubits and coupling edges [[0, 1], [1, 2], [2, 3], [3, 4]]. Basis gates: ['rz', 'sx', 'x', 'cx']. The edge list is the illustrative 5-qubit path from the Challenge Guide, adopted because the guideline gives the qubit count and the phrase "fixed baseline graph" without an edge list. SHA-256 of the definition file: 4f4a114872d2627e4443eb687f3f27eaa4f7ff87f560dd2834045e37e5d79770.
+Processor A is recorded as official=False, status `provisional`. It has 5 qubits and coupling edges [[0, 1], [1, 2], [2, 3], [3, 4]]. Basis gates: ['rz', 'sx', 'x', 'cx']. The executed edge list is the illustrative 5-qubit path from the Challenge Guide. The uploaded diagram is an unlabeled five-node tree, and it does not supply a verified numbering or edge direction. SHA-256 of the definition file: 4f4a114872d2627e4443eb687f3f27eaa4f7ff87f560dd2834045e37e5d79770.
 
 ## 8. Processor B specification and provenance
 
-Processor B is recorded as official=False, status `provisional`. It has 7 qubits and coupling edges [[0, 1], [1, 2], [1, 3], [3, 5], [4, 5], [5, 6]]. Basis gates: ['rz', 'sx', 'x', 'cx']. The edges match the published ibm_lagos heavy-hex fragment and are a stand-in for the undescribed 7-qubit challenge graph. Lagos calibration noise is not used. SHA-256 of the definition file: c686fc273a5a2549dc33051e6b00fd777c934cbfef7bd3e61f7539e3479ee618.
+Processor B is recorded as official=False, status `provisional`. It has 7 qubits and coupling edges [[0, 1], [1, 2], [1, 3], [3, 5], [4, 5], [5, 6]]. Basis gates: ['rz', 'sx', 'x', 'cx']. Those edges are the published 7-qubit ibm_lagos CX fragment used for this preserved run. The organizer correction requires nine qubits. That coupling map has not been supplied, and the two additional qubits were not invented. Lagos calibration noise is not used. SHA-256 of the definition file: c686fc273a5a2549dc33051e6b00fd777c934cbfef7bd3e61f7539e3479ee618.
 
 ## 9. Experimental methodology
 
@@ -42,7 +42,7 @@ Comparison type: shared_parameter_architecture_comparison. Shots: 4096. Transpil
 
 ## 11. Transpilation and routing methodology
 
-Qiskit preset transpilation maps the logical circuit onto each coupling map and the shared basis rz, sx, x, cx. An RZZ gate decomposes to two CX gates on an all-to-all device with this basis. Explicit SWAP instructions, if any remain, are counted separately and charged as three CX gates in the routing metric. The routing overhead in CX-equivalents is transpiled CX count plus three times the explicit SWAP count, minus two times the logical RZZ count. A zero explicit SWAP count means the SWAP gates were decomposed or avoided. It does not by itself mean that routing added no two-qubit operations. Gate cancellation during optimization can also change the CX count, so the metric is the excess over the all-to-all decomposition baseline under the stated optimization level, not a pure SWAP counter.
+Qiskit preset transpilation maps the logical circuit onto each coupling map and the shared basis rz, sx, x, cx, with the same optimization level, layout method, routing method, and transpiler seed on both processors. An RZZ gate decomposes to two CX gates on an all-to-all device with this basis. The stored routing overhead is the transpiled CX count minus two times the logical RZZ count. Explicit SWAP instructions are counted separately. Their three-CX equivalent is stored beside that excess and is not added to it, so a SWAP that has already been decomposed into CX gates is not charged a second time. A zero explicit SWAP count means no SWAP instruction remains. It does not mean that routing added no two-qubit operations. Compiler optimization can cancel or rewrite CX gates, so the excess is not a direct count of inserted SWAP gates.
 
 ## 12. Simulation and noise assumptions
 
@@ -50,9 +50,9 @@ Ideal runs use the Qiskit Aer automatic simulator with no noise model. Provision
 
 ## 13. Problem-performance results
 
-Mode `ideal`: Processor A expected cut 7.8300 (SE 0.0275), best observed 9.5000, approximation ratio 0.8242. Processor B expected cut 7.8300 (SE 0.0275), best observed 9.5000, approximation ratio 0.8242.
+Mode `ideal`: Processor A expected cut 7.8300 (SE 0.0275), best observed 9.5000, expected-cut approximation ratio E[C]/C_ref 0.8242, best-cut ratio C_best/C_ref 1.0000. Processor B expected cut 7.8300 (SE 0.0275), best observed 9.5000, expected-cut approximation ratio E[C]/C_ref 0.8242, best-cut ratio C_best/C_ref 1.0000.
 Agreement of the Processor A ideal shots with the statevector expectation, within four standard errors: True. The same check for Processor B: True.
-Mode `provisional_noise`: Processor A expected cut 7.3936 (SE 0.0305), best observed 9.5000, approximation ratio 0.7783. Processor B expected cut 7.4502 (SE 0.0302), best observed 9.5000, approximation ratio 0.7842.
+Mode `provisional_noise`: Processor A expected cut 7.3936 (SE 0.0305), best observed 9.5000, expected-cut approximation ratio E[C]/C_ref 0.7783, best-cut ratio C_best/C_ref 1.0000. Processor B expected cut 7.4502 (SE 0.0302), best observed 9.5000, expected-cut approximation ratio E[C]/C_ref 0.7842, best-cut ratio C_best/C_ref 1.0000.
 
 ## 14. Circuit-resource results
 
@@ -63,7 +63,7 @@ Processor A allocates 5 physical qubits, uses 5, and uses 0 ancillas outside the
 
 ## 15. SWAP bottleneck analysis
 
-Processor A explicit SWAP count: 0. Processor B explicit SWAP count: 0. Processor A routing overhead in CX-equivalents: 13. Processor B routing overhead in CX-equivalents: 7. Final layouts, logical qubit to physical qubit: A [3, 0, 2, 1, 4], B [5, 1, 4, 3, 6].
+Processor A explicit SWAP count: 0. Processor B explicit SWAP count: 0. Processor A CX excess over the two-CX-per-RZZ baseline: 13. Processor B CX excess over that baseline: 7. These stored excesses are not a direct inserted-SWAP count. With an explicit SWAP count of zero they equal the transpiled CX count minus twice the logical RZZ count. Final layouts, logical qubit to physical qubit: A [3, 0, 2, 1, 4], B [5, 1, 4, 3, 6].
 
 ## 16. Processor A versus Processor B comparison
 
@@ -71,7 +71,7 @@ CX-equivalent routing overhead is 13 on Processor A and 7 on Processor B. In mod
 
 ## 17. Statistical uncertainty and reproducibility
 
-The expected-cut standard error is the square root of the plug-in shot variance divided by the number of shots. It describes multinomial sampling for this seeded run. It does not describe variation over transpiler seeds. The optimal-success standard error uses the binomial proportion formula only for that success indicator. The approximation-ratio standard error scales the expected-cut standard error by the classical reference when that reference is positive. A zero reference leaves the ratio undefined. Package versions, seeds, file hashes, and the parameter vector are stored in the experiment manifest.
+The expected-cut standard error is the square root of the plug-in shot variance divided by the number of shots. It describes multinomial sampling for this seeded run. It does not describe variation over transpiler seeds or over the unfinished optimizer search. The optimal-success standard error uses the binomial proportion formula only for that success indicator. The column approximation_ratio, and the phrase expected-cut approximation ratio, both mean E[C]/C_ref. The best-cut ratio is C_best/C_ref and is a different quantity. The approximation-ratio standard error scales the expected-cut standard error by the classical reference when that reference is positive. A zero reference leaves both ratios undefined. Package versions, seeds, file hashes, and the parameter vector are stored in the experiment manifest.
 
 ## 18. Scientific interpretation
 
@@ -79,7 +79,7 @@ Processor A carries the larger CX-equivalent routing overhead on this instance a
 
 ## 19. Limitations and threats to validity
 
-The official Processor A coupling map, Processor B coupling map, native-gate constraints, noise model, Max-Cut instance, QAOA depth, shot count, and optimizer budget were not in the supplied Phase 1 documents or in a public challenge kit found for this event. The executable models are replaceable JSON files and are marked provisional. The processor slide was not traced into an edge list. Identical illustrative noise rates isolate connectivity only under that assumption. One Sabre seed is not a distribution over layouts. Ideal agreement tests the compiled unitary and the decoder. Noisy differences mix routing overhead with the synthetic error model. Two small graphs cannot support a general ranking of architectures.
+The numbers in this report are a preserved provisional run on the 5-qubit linear Processor A model and the 7-qubit Lagos-fragment Processor B model. Those configurations do not represent the final organizer-confirmed architectures. The Processor A diagram is an unlabeled five-node tree, so its exact numbered coupling map remains unverified. Processor B must use nine qubits according to the organizer's correction, and the full coupling map has not been supplied. The current noise model and Max-Cut graph are illustrative and provisional. official_benchmark_complete remains false until those official inputs are verified and used. Identical illustrative noise rates isolate connectivity only under that assumption. One Sabre seed is not a distribution over layouts. Ideal agreement tests the compiled samples and the decoder. Noisy differences mix routing overhead with the synthetic error model. Two small graphs cannot support a general ranking of architectures.
 
 ## 20. Conclusion
 
@@ -97,11 +97,13 @@ Processor B has the smaller transpiled two-qubit count in this run. The measured
 
 ## Blocking specifications
 
-- The supplied Phase 1 documents do not list Processor A's coupling edges, edge direction, or native-gate constraints.
-- The supplied Phase 1 documents do not list Processor B's coupling edges. The configured map is the published ibm_lagos fragment, not an organizer definition.
-- The supplied Phase 1 documents do not include the official weighted Max-Cut graph, weights, or constraints for O1.
-- QAOA depth, parameter initialization, optimizer budget, and shot count are not specified by the supplied documents. The configured values are provisional defaults.
-- The noise rates are the Challenge Guide's illustrative example, and the guide says to replace them with the official assumptions.
+- Processor A has 5 qubits. The uploaded diagram is an unlabeled five-node tree, so its numbered coupling map, edge directions, and basis remain unverified. The preserved run used the provisional linear path.
+- Processor B must have 9 qubits under the organizer correction. The complete coupling map has not been supplied. The preserved run used the provisional 7-qubit Lagos fragment.
+- Official noise parameters were not in the supplied documents. The preserved noise model is the Challenge Guide illustration.
+- The official O1 weighted Max-Cut instance was not in the supplied documents. The preserved graph is provisional.
+- QAOA depth, shot count, and optimizer settings are provisional defaults. No available source in this repository requires p=2 or SamplerV2.
 
 Official benchmark complete: False.
 Software run success: True.
+
+The blocker bullets above are the text stored in this run's manifest. Current repository status, including the unlabeled Processor A tree and the missing nine-qubit Processor B map, is also stated in the abstract and in the limitations section.

@@ -35,16 +35,35 @@ from src.visualization import (
 
 
 BLOCKING_SPECIFICATIONS = [
-    "The supplied Phase 1 documents do not list Processor A's coupling edges, edge direction, or native-gate constraints.",
-    "The supplied Phase 1 documents do not list Processor B's coupling edges. The configured map is the published ibm_lagos fragment, not an organizer definition.",
-    "The supplied Phase 1 documents do not include the official weighted Max-Cut graph, weights, or constraints for O1.",
-    "QAOA depth, parameter initialization, optimizer budget, and shot count are not specified by the supplied documents. The configured values are provisional defaults.",
-    "The noise rates are the Challenge Guide's illustrative example, and the guide says to replace them with the official assumptions.",
+    "Processor A has 5 qubits. The uploaded diagram is an unlabeled five-node tree, so its numbered coupling map, edge directions, and basis remain unverified. The preserved run used the provisional linear path.",
+    "Processor B must have 9 qubits under the organizer correction. The complete coupling map has not been supplied. The preserved run used the provisional 7-qubit Lagos fragment.",
+    "Official noise parameters were not in the supplied documents. The preserved noise model is the Challenge Guide illustration.",
+    "The official O1 weighted Max-Cut instance was not in the supplied documents. The preserved graph is provisional.",
+    "QAOA depth, shot count, and optimizer settings are provisional defaults. No available source in this repository requires p=2 or SamplerV2.",
 ]
 
 
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
+
+
+def _display_path(path: Path) -> str:
+    resolved = path.resolve()
+    root = repo_root().resolve()
+    try:
+        return resolved.relative_to(root).as_posix()
+    except ValueError:
+        return resolved.as_posix()
+
+
+def _relative_settings(config: ExperimentConfig) -> dict[str, object]:
+    settings = config.to_dict()
+    settings["instance_path"] = _display_path(config.instance_path)
+    settings["output_dir"] = _display_path(config.output_dir)
+    settings["processors"] = {
+        key: _display_path(path) for key, path in config.processor_paths.items()
+    }
+    return settings
 
 
 def _sha256(path: Path) -> str:
@@ -57,7 +76,7 @@ def _plain(value: object) -> object:
     if isinstance(value, (list, tuple)):
         return [_plain(item) for item in value]
     if isinstance(value, Path):
-        return value.as_posix()
+        return _display_path(value)
     if isinstance(value, bool):
         return value
     if isinstance(value, int):
@@ -278,9 +297,9 @@ def _run_stages(
         "stage": "complete",
         "started_utc": started.isoformat(),
         "finished_utc": datetime.now(timezone.utc).isoformat(),
-        "config_path": config_path.resolve().as_posix(),
+        "config_path": _display_path(config_path),
         "config_sha256": _sha256(config_path),
-        "settings": config.to_dict(),
+        "settings": _relative_settings(config),
         "execution_modes": list(config.execution_modes),
         "shots": config.shots,
         "optimization_level": config.optimization_level,
@@ -326,10 +345,10 @@ def _run_stages(
     _export_figures(manifest, instance, processors, bound, compiled_circuits, destination / "figures")
     write_report(manifest, report_path)
     manifest["artifacts"] = {
-        "report": report_path.resolve().as_posix(),
-        "tables": (destination / "tables").resolve().as_posix(),
-        "figures": (destination / "figures").resolve().as_posix(),
-        "circuits": (destination / "circuits").resolve().as_posix(),
+        "report": _display_path(report_path),
+        "tables": _display_path(destination / "tables"),
+        "figures": _display_path(destination / "figures"),
+        "circuits": _display_path(destination / "circuits"),
     }
     progress.update(manifest)
     return manifest
@@ -430,6 +449,11 @@ def _comparison_rows(manifest: dict[str, object]) -> list[dict[str, object]]:
                     "expected_cut_standard_error": execution["expected_cut_standard_error"],
                     "best_observed_cut": execution["best_observed_cut"],
                     "approximation_ratio": execution["approximation_ratio"],
+                    "expected_cut_approximation_ratio": execution.get(
+                        "expected_cut_approximation_ratio",
+                        execution["approximation_ratio"],
+                    ),
+                    "best_cut_approximation_ratio": execution.get("best_cut_approximation_ratio"),
                     "approximation_ratio_standard_error": execution["approximation_ratio_standard_error"],
                     "approximation_reference": execution["approximation_reference"],
                     "optimal_success_probability": execution["optimal_success_probability"],
@@ -444,6 +468,8 @@ def _comparison_rows(manifest: dict[str, object]) -> list[dict[str, object]]:
                     "transpiled_two_qubit_count": resources["transpiled_two_qubit_count"],
                     "cx_count": resources["cx_count"],
                     "explicit_swap_count": resources["explicit_swap_count"],
+                    "explicit_swap_cx_equivalent": resources.get("explicit_swap_cx_equivalent"),
+                    "cx_excess_over_rzz_baseline": resources.get("cx_excess_over_rzz_baseline"),
                     "routing_overhead_cx": resources["routing_overhead_cx"],
                     "logical_qubits": resources["logical_qubits"],
                     "physical_qubits_allocated": resources["physical_qubits_allocated"],

@@ -75,6 +75,30 @@ def test_missing_required_field() -> None:
         processor_from_mapping(payload)
 
 
+def test_nine_qubit_schema_fixture_is_not_an_official_processor() -> None:
+    fixture = load_processor(ROOT / "processors" / "fixtures" / "nine_qubit_schema_not_official.json")
+    shipped_b = load_processor(ROOT / "processors" / "processor_B.json")
+    assert fixture.num_qubits == 9
+    assert fixture.networkx_graph().number_of_edges() == 8
+    assert fixture.provenance["official"] is False
+    assert fixture.provenance["status"] == "schema_demonstration"
+    assert fixture.identifier != shipped_b.identifier
+    assert shipped_b.num_qubits == 7
+    assert shipped_b.provenance["official"] is False
+    assert fixture.noise_model() is not None
+
+
+def test_official_processor_requires_a_challenge_kit_filename() -> None:
+    payload = copy.deepcopy(_payload("processor_A.json"))
+    payload["provenance"]["official"] = True
+    with pytest.raises(ProcessorModelError, match="challenge_kit_file"):
+        processor_from_mapping(payload)
+    payload["provenance"]["challenge_kit_file"] = "challenge-kit/processor_A.json"
+    processor = processor_from_mapping(payload)
+    assert processor.provenance["official"] is True
+    assert processor.coupling_edges == ((0, 1), (1, 2), (2, 3), (3, 4))
+
+
 def test_directed_edges_are_not_silently_added() -> None:
     payload = copy.deepcopy(_payload("processor_A.json"))
     payload["connectivity"] = "directed"

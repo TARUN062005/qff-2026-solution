@@ -25,6 +25,23 @@ def _execution(processor: dict[str, object], mode: str) -> dict[str, object]:
     return execution
 
 
+def _best_cut_ratio(execution: dict[str, object], classical: dict[str, object]) -> float | None:
+    stored = execution.get("best_cut_approximation_ratio")
+    if isinstance(stored, (int, float)) and not isinstance(stored, bool):
+        return float(stored)
+    best = execution.get("best_observed_cut")
+    reference = classical.get("objective_value")
+    if (
+        isinstance(best, (int, float))
+        and not isinstance(best, bool)
+        and isinstance(reference, (int, float))
+        and not isinstance(reference, bool)
+        and float(reference) > 0
+    ):
+        return float(best) / float(reference)
+    return None
+
+
 def _resources(processor: dict[str, object]) -> dict[str, object]:
     resources = processor["resources"]
     if not isinstance(resources, dict):
@@ -67,7 +84,7 @@ def render_report(manifest: dict[str, object]) -> str:
         "",
         "## 1. Abstract",
         "",
-        "This Phase 1 study implements weighted Max-Cut with the Quantum Approximate Optimization Algorithm and compiles the same parameterized circuit for two processor models. Shared parameters are chosen by an ideal statevector optimization, then both processors are executed with those parameters. Circuit cost, routing overhead, and shot-based cut statistics are compared. The organizer has not published the official coupling maps, noise model, or problem instance in the documents available to this repository, so the numerical results are a provisional controlled experiment.",
+        "This Phase 1 study implements weighted Max-Cut with the Quantum Approximate Optimization Algorithm and compiles the same parameterized circuit for two processor models. Shared parameters are chosen by an ideal statevector optimization, then both processors are executed with those parameters. Circuit cost, routing overhead, and shot-based cut statistics are compared. Every number below comes from the preserved provisional run that used the 5-qubit linear Processor A model and the 7-qubit Lagos-fragment Processor B model. Those configurations do not represent the final organizer-confirmed architectures. The Processor A diagram is an unlabeled five-node tree, so its exact numbered coupling map remains unverified. Processor B must use nine qubits according to the organizer's correction, and the full coupling map has not been supplied. The noise model and the Max-Cut graph are illustrative and provisional. This report is not an official benchmark.",
         "",
         "## 2. Problem statement",
         "",
@@ -83,19 +100,19 @@ def render_report(manifest: dict[str, object]) -> str:
         "",
         "## 5. Classical reference method",
         "",
-        f"Method: {classical['method']}. Optimality guaranteed: {classical['optimal']}. Reference cut: {_number(classical['objective_value'])}. Assignment, with vertex 0 in the first position: {classical['assignment']}. The assignment was evaluated again with the independent cut function before it was accepted. Instance `{instance['instance_id']}` has {instance['num_vertices']} vertices and {instance['num_edges']} edges. Official instance: {instance['official']}.",
+        f"Method: {classical['method']}. Optimality guaranteed: {classical['optimal']}. Reference cut: {_number(classical['objective_value'])}. Assignment, with vertex 0 in the first position: {classical['assignment']}. The solver re-evaluated that assignment with the same cut function as a consistency check. A separate exhaustive enumeration in the test suite checks the provisional graph without calling that function. Instance `{instance['instance_id']}` has {instance['num_vertices']} vertices and {instance['num_edges']} edges. Official instance: {instance['official']}. The reference cut belongs to this loaded instance. It is not an official O1 optimum.",
         "",
         "## 6. QAOA circuit formulation",
         "",
-        f"Depth p = {qaoa['depth']}. Parameter vector, ordered gamma then beta: {qaoa['parameters']}. The ideal statevector expectation at those parameters is {_number(qaoa['ideal_expected_cut'])}. Optimizer: {qaoa['method']}. Objective evaluations: {qaoa['evaluation_count']}. COBYLA reported success={qaoa['cobyla_success']} with message: {qaoa['cobyla_message']}. For depth 1, a deterministic grid over gamma in [0, pi] and beta in [0, pi/2] supplies the COBYLA start. The configured initial vector is recorded for reproducibility and is not a second, processor-specific start.",
+        f"Depth p = {qaoa['depth']}. Parameter vector, ordered gamma then beta: {qaoa['parameters']}. The ideal statevector expectation at those parameters is {_number(qaoa['ideal_expected_cut'])}. Optimizer: {qaoa['method']}. Objective evaluations: {qaoa['evaluation_count']}. COBYLA reported success={qaoa['cobyla_success']} with message: {str(qaoa['cobyla_message']).rstrip('.')}. For depth 1, a deterministic grid over gamma in [0, pi] and beta in [0, pi/2] supplies the COBYLA start. The configured initial vector is recorded for reproducibility and is not a second, processor-specific start.",
         "",
         "## 7. Processor A specification and provenance",
         "",
-        f"Processor A is recorded as official={processor_a['official']}, status `{processor_a['provenance_status']}`. It has {processor_a['num_qubits']} qubits and coupling edges {processor_a['coupling_edges']}. Basis gates: {processor_a['basis_gates']}. The edge list is the illustrative 5-qubit path from the Challenge Guide, adopted because the guideline gives the qubit count and the phrase \"fixed baseline graph\" without an edge list. SHA-256 of the definition file: {processor_a['sha256']}.",
+        f"Processor A is recorded as official={processor_a['official']}, status `{processor_a['provenance_status']}`. It has {processor_a['num_qubits']} qubits and coupling edges {processor_a['coupling_edges']}. Basis gates: {processor_a['basis_gates']}. The executed edge list is the illustrative 5-qubit path from the Challenge Guide. The uploaded diagram is an unlabeled five-node tree, and it does not supply a verified numbering or edge direction. SHA-256 of the definition file: {processor_a['sha256']}.",
         "",
         "## 8. Processor B specification and provenance",
         "",
-        f"Processor B is recorded as official={processor_b['official']}, status `{processor_b['provenance_status']}`. It has {processor_b['num_qubits']} qubits and coupling edges {processor_b['coupling_edges']}. Basis gates: {processor_b['basis_gates']}. The edges match the published ibm_lagos heavy-hex fragment and are a stand-in for the undescribed 7-qubit challenge graph. Lagos calibration noise is not used. SHA-256 of the definition file: {processor_b['sha256']}.",
+        f"Processor B is recorded as official={processor_b['official']}, status `{processor_b['provenance_status']}`. It has {processor_b['num_qubits']} qubits and coupling edges {processor_b['coupling_edges']}. Basis gates: {processor_b['basis_gates']}. Those edges are the published 7-qubit ibm_lagos CX fragment used for this preserved run. The organizer correction requires nine qubits. That coupling map has not been supplied, and the two additional qubits were not invented. Lagos calibration noise is not used. SHA-256 of the definition file: {processor_b['sha256']}.",
         "",
         "## 9. Experimental methodology",
         "",
@@ -107,7 +124,7 @@ def render_report(manifest: dict[str, object]) -> str:
         "",
         "## 11. Transpilation and routing methodology",
         "",
-        "Qiskit preset transpilation maps the logical circuit onto each coupling map and the shared basis rz, sx, x, cx. An RZZ gate decomposes to two CX gates on an all-to-all device with this basis. Explicit SWAP instructions, if any remain, are counted separately and charged as three CX gates in the routing metric. The routing overhead in CX-equivalents is transpiled CX count plus three times the explicit SWAP count, minus two times the logical RZZ count. A zero explicit SWAP count means the SWAP gates were decomposed or avoided. It does not by itself mean that routing added no two-qubit operations. Gate cancellation during optimization can also change the CX count, so the metric is the excess over the all-to-all decomposition baseline under the stated optimization level, not a pure SWAP counter.",
+        "Qiskit preset transpilation maps the logical circuit onto each coupling map and the shared basis rz, sx, x, cx, with the same optimization level, layout method, routing method, and transpiler seed on both processors. An RZZ gate decomposes to two CX gates on an all-to-all device with this basis. The stored routing overhead is the transpiled CX count minus two times the logical RZZ count. Explicit SWAP instructions are counted separately. Their three-CX equivalent is stored beside that excess and is not added to it, so a SWAP that has already been decomposed into CX gates is not charged a second time. A zero explicit SWAP count means no SWAP instruction remains. It does not mean that routing added no two-qubit operations. Compiler optimization can cancel or rewrite CX gates, so the excess is not a direct count of inserted SWAP gates.",
         "",
         "## 12. Simulation and noise assumptions",
         "",
@@ -120,7 +137,7 @@ def render_report(manifest: dict[str, object]) -> str:
         left = _execution(processor_a, str(mode))
         right = _execution(processor_b, str(mode))
         lines.append(
-            f"Mode `{mode}`: Processor A expected cut {_number(left['expected_cut'])} (SE {_number(left['expected_cut_standard_error'])}), best observed {_number(left['best_observed_cut'])}, approximation ratio {_number(left['approximation_ratio'])}. Processor B expected cut {_number(right['expected_cut'])} (SE {_number(right['expected_cut_standard_error'])}), best observed {_number(right['best_observed_cut'])}, approximation ratio {_number(right['approximation_ratio'])}."
+            f"Mode `{mode}`: Processor A expected cut {_number(left['expected_cut'])} (SE {_number(left['expected_cut_standard_error'])}), best observed {_number(left['best_observed_cut'])}, expected-cut approximation ratio E[C]/C_ref {_number(left['approximation_ratio'])}, best-cut ratio C_best/C_ref {_number(_best_cut_ratio(left, classical))}. Processor B expected cut {_number(right['expected_cut'])} (SE {_number(right['expected_cut_standard_error'])}), best observed {_number(right['best_observed_cut'])}, expected-cut approximation ratio E[C]/C_ref {_number(right['approximation_ratio'])}, best-cut ratio C_best/C_ref {_number(_best_cut_ratio(right, classical))}."
         )
         if mode == "ideal":
             lines.append(
@@ -150,7 +167,7 @@ def render_report(manifest: dict[str, object]) -> str:
             "",
             "## 15. SWAP bottleneck analysis",
             "",
-            f"Processor A explicit SWAP count: {resources_a['explicit_swap_count']}. Processor B explicit SWAP count: {resources_b['explicit_swap_count']}. Processor A routing overhead in CX-equivalents: {resources_a['routing_overhead_cx']}. Processor B routing overhead in CX-equivalents: {resources_b['routing_overhead_cx']}. Final layouts, logical qubit to physical qubit: A {resources_a['final_index_layout']}, B {resources_b['final_index_layout']}.",
+            f"Processor A explicit SWAP count: {resources_a['explicit_swap_count']}. Processor B explicit SWAP count: {resources_b['explicit_swap_count']}. Processor A CX excess over the two-CX-per-RZZ baseline: {resources_a['routing_overhead_cx']}. Processor B CX excess over that baseline: {resources_b['routing_overhead_cx']}. These stored excesses are not a direct inserted-SWAP count. With an explicit SWAP count of zero they equal the transpiled CX count minus twice the logical RZZ count. Final layouts, logical qubit to physical qubit: A {resources_a['final_index_layout']}, B {resources_b['final_index_layout']}.",
             "",
             "## 16. Processor A versus Processor B comparison",
             "",
@@ -158,7 +175,7 @@ def render_report(manifest: dict[str, object]) -> str:
             "",
             "## 17. Statistical uncertainty and reproducibility",
             "",
-            "The expected-cut standard error is the square root of the plug-in shot variance divided by the number of shots. It describes multinomial sampling for this seeded run. It does not describe variation over transpiler seeds. The optimal-success standard error uses the binomial proportion formula only for that success indicator. The approximation-ratio standard error scales the expected-cut standard error by the classical reference when that reference is positive. A zero reference leaves the ratio undefined. Package versions, seeds, file hashes, and the parameter vector are stored in the experiment manifest.",
+            "The expected-cut standard error is the square root of the plug-in shot variance divided by the number of shots. It describes multinomial sampling for this seeded run. It does not describe variation over transpiler seeds or over the unfinished optimizer search. The optimal-success standard error uses the binomial proportion formula only for that success indicator. The column approximation_ratio, and the phrase expected-cut approximation ratio, both mean E[C]/C_ref. The best-cut ratio is C_best/C_ref and is a different quantity. The approximation-ratio standard error scales the expected-cut standard error by the classical reference when that reference is positive. A zero reference leaves both ratios undefined. Package versions, seeds, file hashes, and the parameter vector are stored in the experiment manifest.",
             "",
             "## 18. Scientific interpretation",
             "",
@@ -166,7 +183,7 @@ def render_report(manifest: dict[str, object]) -> str:
             "",
             "## 19. Limitations and threats to validity",
             "",
-            "The official Processor A coupling map, Processor B coupling map, native-gate constraints, noise model, Max-Cut instance, QAOA depth, shot count, and optimizer budget were not in the supplied Phase 1 documents or in a public challenge kit found for this event. The executable models are replaceable JSON files and are marked provisional. The processor slide was not traced into an edge list. Identical illustrative noise rates isolate connectivity only under that assumption. One Sabre seed is not a distribution over layouts. Ideal agreement tests the compiled unitary and the decoder. Noisy differences mix routing overhead with the synthetic error model. Two small graphs cannot support a general ranking of architectures.",
+            "The numbers in this report are a preserved provisional run on the 5-qubit linear Processor A model and the 7-qubit Lagos-fragment Processor B model. Those configurations do not represent the final organizer-confirmed architectures. The Processor A diagram is an unlabeled five-node tree, so its exact numbered coupling map remains unverified. Processor B must use nine qubits according to the organizer's correction, and the full coupling map has not been supplied. The current noise model and Max-Cut graph are illustrative and provisional. official_benchmark_complete remains false until those official inputs are verified and used. Identical illustrative noise rates isolate connectivity only under that assumption. One Sabre seed is not a distribution over layouts. Ideal agreement tests the compiled samples and the decoder. Noisy differences mix routing overhead with the synthetic error model. Two small graphs cannot support a general ranking of architectures.",
             "",
             "## 20. Conclusion",
             "",
@@ -195,6 +212,8 @@ def render_report(manifest: dict[str, object]) -> str:
             "",
             f"Official benchmark complete: {manifest['official_benchmark_complete']}.",
             f"Software run success: {manifest['success']}.",
+            "",
+            "The blocker bullets above are the text stored in this run's manifest. Current repository status, including the unlabeled Processor A tree and the missing nine-qubit Processor B map, is also stated in the abstract and in the limitations section.",
             "",
         ]
     )

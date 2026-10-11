@@ -1,0 +1,25 @@
+{
+  "name": "Nine-qubit schema demonstration",
+  "identifier": "schema-9",
+  "role": "schema_fixture",
+  "num_qubits": 9,
+  "qubits": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  "coupling_map": [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8]],
+  "connectivity": "undirected",
+  "basis_gates": ["rz", "sx", "x", "cx"],
+  "gate_directionality": "bidirectional",
+  "noise": {
+    "label": "schema_demonstration_not_official",
+    "one_qubit_depolarizing_probability": 0.001,
+    "one_qubit_gates": ["x", "sx"],
+    "two_qubit_depolarizing_probability": 0.01,
+    "two_qubit_gates": ["cx"],
+    "readout_probabilities": [[0.99, 0.01], [0.02, 0.98]],
+    "rz_noise": "none"
+  },
+  "provenance": {
+    "status": "schema_demonstration",
+    "official": false,
+    "source": "Synthetic 9-qubit path used only to show that the loader accepts a nine-qubit configuration. These edges are not the official Processor B coupling map, they were not inferred from a diagram, and the noise numbers are the same illustrative schema values used elsewhere. They are not organizer measurements."
+  }
+}
