@@ -22,7 +22,7 @@ The loader reads qubit count, edges, basis gates, and noise from JSON. It does n
 
 ## ADR-5. Expected-cut ratio and best-cut ratio are separate
 
-`approximation_ratio` and `expected_cut_approximation_ratio` are `E[C] / C_ref`. `best_cut_approximation_ratio` is `C_best / C_ref`. The preserved CSV predates the best-cut column. On that run the best observed cut equals the provisional reference 9.5, so the best-cut ratio is 1 while the stored expected-cut ratio is about 0.824 in the ideal rows.
+`approximation_ratio` and `expected_cut_approximation_ratio` are `E[C] / C_ref`. `best_cut_approximation_ratio` is `C_best / C_ref`. The current `results/tables/AB_comparison.csv` stores both. On that provisional run the best observed cut equals the provisional reference 9.5, so the best-cut ratio is 1 while the stored expected-cut ratio is about 0.824 in the ideal rows.
 
 ## ADR-6. Routing overhead is CX excess, not an inserted-SWAP count
 

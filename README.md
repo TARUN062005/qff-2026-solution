@@ -94,10 +94,10 @@ These figures are the preserved provisional run on the 5-qubit linear Processor 
 | Physical qubits used | 5 | 5 |
 | Ancillas outside the logical layout | 0 | 0 |
 | Ideal expected cut (SE) | 7.8300 (0.0275) | 7.8300 (0.0275) |
-| Ideal approximation ratio | 0.8242 | 0.8242 |
+| Ideal E[C]/C_ref | 0.8242 | 0.8242 |
 | Ideal optimum-shot probability (SE) | 0.2485 (0.0068) | 0.2485 (0.0068) |
 | Provisional-noise expected cut (SE) | 7.3936 (0.0305) | 7.4502 (0.0302) |
-| Provisional-noise approximation ratio | 0.7783 | 0.7842 |
+| Provisional-noise E[C]/C_ref | 0.7783 | 0.7842 |
 | Best observed cut, every mode | 9.5 | 9.5 |
 
 The ideal histograms for A and B matched in this seeded run. The transpiled OpenQASM does not match: A has 27 CX gates and B has 21. Both ideal shot means sit within four standard errors of the statevector value 7.8151. On these settings, compilation preserved the logical measurement distribution, and the architecture difference shows up in the compiled circuit.
@@ -174,20 +174,4 @@ Cursor Grok assisted with the implementation, tests, figures, and documentation.
 
 ## Publishing to GitHub
 
-The repository is prepared locally and has not been pushed. From this directory, after reviewing the files:
-
-```
-git init
-git add .
-git status
-git commit -m "Add provisional PS-O1 QAOA Max-Cut A/B benchmark"
-```
-
-Create an empty public GitHub repository, then:
-
-```
-git remote add origin <repository-url>
-git push -u origin HEAD
-```
-
-Confirm the repository is visible to the judges before submitting the URL. Do not commit tokens or credential files. This tree does not contain any.
+The local `main` branch tracks `origin` at `https://github.com/TARUN062005/qff-2026-solution.git`. At the submission audit, `git ls-remote origin HEAD` returned the same commit as local `HEAD`, `b9b23d943d42922bdffc31fdbe4686383de0f68c`. Later documentation edits are local until they are committed and pushed. Do not commit tokens or credential files. This tree does not contain any. Confirm the repository is visible to the judges before submitting the URL.
