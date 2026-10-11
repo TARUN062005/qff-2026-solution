@@ -34,13 +34,21 @@ from src.visualization import (
 )
 
 
-BLOCKING_SPECIFICATIONS = [
-    "Processor A has 5 qubits. The uploaded diagram is an unlabeled five-node tree, so its numbered coupling map, edge directions, and basis remain unverified. The preserved run used the provisional linear path.",
-    "Processor B must have 9 qubits under the organizer correction. The complete coupling map has not been supplied. The preserved run used the provisional 7-qubit Lagos fragment.",
-    "Official noise parameters were not in the supplied documents. The preserved noise model is the Challenge Guide illustration.",
-    "The official O1 weighted Max-Cut instance was not in the supplied documents. The preserved graph is provisional.",
-    "QAOA depth, shot count, and optimizer settings are provisional defaults. No available source in this repository requires p=2 or SamplerV2.",
-]
+def blocking_specifications(instance: MaxCutInstance | None = None) -> list[str]:
+    if instance is None:
+        graph = "The executed Max-Cut graph is the file named by the experiment config. It is not an organizer-provided instance unless that file is marked official. Its optimum is not an official O1 optimum unless the issued instance is loaded."
+    else:
+        graph = (
+            f"The executed Max-Cut graph is `{instance.instance_id}` ({instance.num_vertices} vertices). "
+            "It is not an organizer-provided instance. Its optimum is not an official O1 optimum."
+        )
+    return [
+        "Processor A coupling edges are the undirected framework list (0,1), (1,2), (1,3), (3,4). Basis gates and both CX directions are a local assumption. Official directed calibration was not supplied.",
+        "Processor B coupling edges are the undirected 9-qubit framework list. The 14-page overview diagram is captioned 7 qubits. Basis gates and both CX directions are a local assumption.",
+        "The noise rates are the illustrative Challenge Guide model. The framework says organizer benchmark definitions are authoritative for the final noise model, and those parameters were not in the coupling-map documents.",
+        graph,
+        "QAOA depth 1 with a deterministic grid and COBYLA is the selected reproducible policy. The framework permits p=1 or p=2. It does not require SamplerV2.",
+    ]
 
 
 def repo_root() -> Path:
@@ -174,7 +182,7 @@ def run_controlled_experiment(
         "success": False,
         "stage": "start",
         "official_benchmark_complete": False,
-        "blocking_specifications": list(BLOCKING_SPECIFICATIONS),
+        "blocking_specifications": blocking_specifications(),
         "team": config.team,
         "problem_code": config.problem_code,
         "dashboard_identifier": config.dashboard_identifier,
@@ -202,6 +210,7 @@ def _run_stages(
     root = repo_root()
     progress["stage"] = "load_instance"
     instance = load_instance(config.instance_path)
+    progress["blocking_specifications"] = blocking_specifications(instance)
     if instance.problem_code != config.problem_code:
         raise TranspilationError("The instance problem code does not match the experiment config.")
     progress["stage"] = "classical_reference"
@@ -266,6 +275,7 @@ def _run_stages(
     )
     processor_results: dict[str, object] = {}
     compiled_circuits = {}
+    placement_errors: list[str] = []
     for key in ("A", "B"):
         progress["stage"] = f"compile_{key}"
         processor_results[key], compiled_circuits[key] = _benchmark_processor(
@@ -281,11 +291,17 @@ def _run_stages(
             destination,
             _sha256(config.instance_path),
         )
+        if compiled_circuits[key] is None:
+            result = processor_results[key]
+            if isinstance(result, dict):
+                placement_errors.append(str(result.get("placement_error", "")))
+    if len(placement_errors) == 2:
+        raise TranspilationError(placement_errors[0])
     progress["stage"] = "export"
     manifest: dict[str, object] = {
         "success": True,
         "official_benchmark_complete": official,
-        "blocking_specifications": [] if official else list(BLOCKING_SPECIFICATIONS),
+        "blocking_specifications": [] if official else blocking_specifications(instance),
         "team": config.team,
         "event": config.event,
         "phase": config.phase,
@@ -294,6 +310,7 @@ def _run_stages(
         "dashboard_identifier": config.dashboard_identifier,
         "problem_title": config.problem_title,
         "comparison_type": config.comparison_type,
+        "experiment_id": config.experiment_id,
         "stage": "complete",
         "started_utc": started.isoformat(),
         "finished_utc": datetime.now(timezone.utc).isoformat(),
@@ -334,6 +351,9 @@ def _run_stages(
             "cobyla_success": optimization["cobyla_success"],
             "cobyla_message": optimization["cobyla_message"],
             "cobyla_nfev": optimization["cobyla_nfev"],
+            "parameter_selection": optimization["parameter_selection"],
+            "cobyla_terminal_expected_cut": optimization["cobyla_terminal_expected_cut"],
+            "cobyla_last_five_span": optimization["cobyla_last_five_span"],
             "configured_initial_parameters": list(config.initial_parameters),
             "parameter_source": "shared ideal statevector optimization, applied unchanged to both processors",
         },
@@ -354,6 +374,19 @@ def _run_stages(
     return manifest
 
 
+def _clear_unexecuted_processor_outputs(destination: Path, key: str) -> None:
+    for path in (
+        destination / "circuits" / f"processor_{key}_transpiled.qasm",
+        destination / "figures" / f"processor_{key}_transpiled.png",
+    ):
+        if path.exists():
+            path.unlink()
+    tables = destination / "tables"
+    if tables.exists():
+        for path in tables.glob(f"processor_{key}_*"):
+            path.unlink()
+
+
 def _benchmark_processor(
     key: str,
     processor: ProcessorModel,
@@ -367,6 +400,33 @@ def _benchmark_processor(
     destination: Path,
     instance_sha256: str,
 ) -> tuple[dict[str, object], object]:
+    if logical_circuit.num_qubits > processor.num_qubits:
+        _clear_unexecuted_processor_outputs(destination, key)
+        message = (
+            f"{processor.name} has {processor.num_qubits} qubits and the logical circuit needs "
+            f"{logical_circuit.num_qubits}. No shots or transpiled metrics were produced for this processor."
+        )
+        _write_json(
+            destination / "circuits" / f"processor_{key}_layout.json",
+            {"placement_feasible": False, "placement_error": message},
+        )
+        return {
+            "name": processor.name,
+            "identifier": processor.identifier,
+            "official": processor.provenance.get("official"),
+            "provenance_status": processor.provenance.get("status"),
+            "provenance_source": processor.provenance.get("source"),
+            "num_qubits": processor.num_qubits,
+            "coupling_edges": [list(edge) for edge in processor.coupling_edges],
+            "basis_gates": list(processor.basis_gates),
+            "noise": None if processor.noise is None else processor.noise.to_dict(),
+            "sha256": _sha256(source),
+            "instance_sha256": instance_sha256,
+            "placement_feasible": False,
+            "placement_error": message,
+            "resources": None,
+            "executions": {},
+        }, None
     started = time.perf_counter()
     compiled = compile_for_processor(
         logical_circuit,
@@ -415,6 +475,8 @@ def _benchmark_processor(
         "noise": None if processor.noise is None else processor.noise.to_dict(),
         "sha256": _sha256(source),
         "instance_sha256": instance_sha256,
+        "placement_feasible": True,
+        "placement_error": "",
         "resources": resources,
         "executions": executions,
     }, compiled
@@ -432,6 +494,8 @@ def _comparison_rows(manifest: dict[str, object]) -> list[dict[str, object]]:
         processor = processors[key]
         if not isinstance(processor, dict):
             raise TypeError("processor result must be an object.")
+        if processor.get("placement_feasible") is False:
+            continue
         resources = processor["resources"]
         executions = processor["executions"]
         if not isinstance(resources, dict) or not isinstance(executions, dict):
@@ -464,6 +528,8 @@ def _comparison_rows(manifest: dict[str, object]) -> list[dict[str, object]]:
                     "transpiled_depth": resources["transpiled_depth"],
                     "logical_operation_count": resources["logical_operation_count"],
                     "transpiled_operation_count": resources["transpiled_operation_count"],
+                    "logical_single_qubit_count": resources.get("logical_single_qubit_count"),
+                    "transpiled_single_qubit_count": resources.get("transpiled_single_qubit_count"),
                     "logical_two_qubit_count": resources["logical_two_qubit_count"],
                     "transpiled_two_qubit_count": resources["transpiled_two_qubit_count"],
                     "cx_count": resources["cx_count"],
@@ -507,6 +573,36 @@ def _export_tables(manifest: dict[str, object], tables: Path) -> None:
     if resource_rows:
         resource_fields = [field for field in resource_rows[0] if field not in {"measurement_decoder", "final_index_layout"}]
         _write_csv(tables / "circuit_resources.csv", resource_rows, resource_fields)
+    _write_placement_table(manifest, tables)
+
+
+def _write_placement_table(manifest: dict[str, object], tables: Path) -> None:
+    processors = manifest["processors"]
+    if not isinstance(processors, dict):
+        return
+    logical_qubits = manifest.get("instance", {})
+    logical_count = logical_qubits.get("num_vertices") if isinstance(logical_qubits, dict) else ""
+    rows = []
+    for key in ("A", "B"):
+        processor = processors.get(key)
+        if not isinstance(processor, dict):
+            continue
+        feasible = processor.get("placement_feasible") is True
+        rows.append(
+            {
+                "processor": key,
+                "placement_feasible": feasible,
+                "measured": feasible,
+                "physical_qubits": processor.get("num_qubits", ""),
+                "logical_qubits": logical_count,
+                "reason": "" if feasible else processor.get("placement_error", "not executed"),
+            }
+        )
+    _write_csv(
+        tables / "placement_status.csv",
+        rows,
+        ["processor", "placement_feasible", "measured", "physical_qubits", "logical_qubits", "reason"],
+    )
 
 
 def _export_figures(
@@ -526,74 +622,81 @@ def _export_figures(
     processors_manifest = manifest["processors"]
     if not isinstance(processors_manifest, dict):
         raise TypeError("processors must be an object.")
+    panel_paths = [logical_path]
     for key in ("A", "B"):
         image_path = figures / f"processor_{key}_transpiled.png"
-        save_circuit_figure(compiled_circuits[key], image_path, f"Processor {key} transpiled circuit")
+        compiled = compiled_circuits.get(key)
+        if compiled is None:
+            if image_path.exists():
+                image_path.unlink()
+            continue
+        save_circuit_figure(compiled, image_path, f"Processor {key} transpiled circuit")
         transpiled_paths[key] = image_path
-    save_circuit_panel(
-        [logical_path, transpiled_paths["A"], transpiled_paths["B"]],
-        figures / "logical_vs_transpiled.png",
-    )
+        panel_paths.append(image_path)
+    save_circuit_panel(panel_paths, figures / "logical_vs_transpiled.png")
     rows = _comparison_rows(manifest)
-    resource_a = processors_manifest["A"]["resources"]
-    resource_b = processors_manifest["B"]["resources"]
+    placed = [
+        key
+        for key in ("A", "B")
+        if isinstance(processors_manifest[key], dict)
+        and isinstance(processors_manifest[key].get("resources"), dict)
+    ]
+    footnote = None
+    unplaced = [key for key in ("A", "B") if key not in placed]
+    if unplaced:
+        footnote = "Measured processors only. " + " ".join(
+            str(processors_manifest[key].get("placement_error", f"Processor {key} was not executed."))
+            for key in unplaced
+        )
+    resource_by_key = {key: processors_manifest[key]["resources"] for key in placed}
+    labels = [f"Processor {key}" for key in placed]
+
+    def _series(fields: dict[str, str]) -> dict[str, list[float]]:
+        return {
+            label: [float(resource_by_key[key][field]) for key in placed]
+            for label, field in fields.items()
+        }
+
     save_grouped_bars(
-        ["Processor A", "Processor B"],
-        {
-            "Logical depth": [float(resource_a["logical_depth"]), float(resource_b["logical_depth"])],
-            "Transpiled depth": [float(resource_a["transpiled_depth"]), float(resource_b["transpiled_depth"])],
-        },
+        labels,
+        _series({"Logical depth": "logical_depth", "Transpiled depth": "transpiled_depth"}),
         "Computational depth",
         "Logical and transpiled circuit depth",
         figures / "depth_comparison.png",
+        footnote=footnote,
     )
     save_grouped_bars(
-        ["Processor A", "Processor B"],
-        {
-            "Logical two-qubit gates": [
-                float(resource_a["logical_two_qubit_count"]),
-                float(resource_b["logical_two_qubit_count"]),
-            ],
-            "Transpiled two-qubit gates": [
-                float(resource_a["transpiled_two_qubit_count"]),
-                float(resource_b["transpiled_two_qubit_count"]),
-            ],
-        },
+        labels,
+        _series({
+            "Logical two-qubit gates": "logical_two_qubit_count",
+            "Transpiled two-qubit gates": "transpiled_two_qubit_count",
+        }),
         "Two-qubit instructions",
         "Two-qubit gate count before and after transpilation",
         figures / "two_qubit_comparison.png",
+        footnote=footnote,
     )
     save_grouped_bars(
-        ["Processor A", "Processor B"],
-        {
-            "Explicit SWAP count": [
-                float(resource_a["explicit_swap_count"]),
-                float(resource_b["explicit_swap_count"]),
-            ],
-            "CX-equivalent routing overhead": [
-                float(resource_a["routing_overhead_cx"]),
-                float(resource_b["routing_overhead_cx"]),
-            ],
-        },
+        labels,
+        _series({
+            "Explicit SWAP count": "explicit_swap_count",
+            "CX-equivalent routing overhead": "routing_overhead_cx",
+        }),
         "Gate count",
         "SWAP count and CX-equivalent routing overhead",
         figures / "routing_overhead.png",
+        footnote=footnote,
     )
     save_grouped_bars(
-        ["Processor A", "Processor B"],
-        {
-            "Allocated physical qubits": [
-                float(resource_a["physical_qubits_allocated"]),
-                float(resource_b["physical_qubits_allocated"]),
-            ],
-            "Used physical qubits": [
-                float(resource_a["physical_qubits_used"]),
-                float(resource_b["physical_qubits_used"]),
-            ],
-        },
+        labels,
+        _series({
+            "Allocated physical qubits": "physical_qubits_allocated",
+            "Used physical qubits": "physical_qubits_used",
+        }),
         "Qubits",
         "Physical qubit allocation and use",
         figures / "qubit_utilization.png",
+        footnote=footnote,
     )
     classical = manifest["classical_reference"]
     qaoa = manifest["qaoa"]
@@ -604,8 +707,9 @@ def _export_figures(
         float(classical["objective_value"]),
         float(qaoa["ideal_expected_cut"]),
         figures / "problem_performance.png",
+        footnote=footnote,
     )
-    save_tradeoff_chart(rows, figures / "architecture_tradeoff.png")
+    save_tradeoff_chart(rows, figures / "architecture_tradeoff.png", footnote=footnote)
     histograms = {}
     for row in rows:
         processor = processors_manifest[str(row["processor"])]

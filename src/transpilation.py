@@ -124,6 +124,8 @@ def resource_report(
         "transpiled_depth": compiled["depth"],
         "logical_operation_count": logical["operation_count"],
         "transpiled_operation_count": compiled["operation_count"],
+        "logical_single_qubit_count": logical["single_qubit_count"],
+        "transpiled_single_qubit_count": compiled["single_qubit_count"],
         "logical_two_qubit_count": logical["two_qubit_count"],
         "transpiled_two_qubit_count": compiled["two_qubit_count"],
         "cx_count": compiled["cx_count"],

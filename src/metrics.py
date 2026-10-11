@@ -25,6 +25,7 @@ def _computational(instruction_name: str) -> bool:
 
 def circuit_instruction_metrics(circuit: QuantumCircuit) -> dict[str, int]:
     operation_count = 0
+    single_qubit_count = 0
     two_qubit_count = 0
     cx_count = 0
     swap_count = 0
@@ -36,6 +37,8 @@ def circuit_instruction_metrics(circuit: QuantumCircuit) -> dict[str, int]:
         if not _computational(name):
             continue
         operation_count += 1
+        if instruction.operation.num_qubits == 1:
+            single_qubit_count += 1
         if instruction.operation.num_qubits == 2:
             two_qubit_count += 1
         if name == "cx":
@@ -49,6 +52,7 @@ def circuit_instruction_metrics(circuit: QuantumCircuit) -> dict[str, int]:
             )
         ),
         "operation_count": operation_count,
+        "single_qubit_count": single_qubit_count,
         "two_qubit_count": two_qubit_count,
         "cx_count": cx_count,
         "explicit_swap_count": swap_count,

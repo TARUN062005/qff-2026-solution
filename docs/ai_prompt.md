@@ -6,7 +6,9 @@ This file is a reconstructed summary of AI-assisted work on the Q-TEAM PS-O1 rep
 
 Cursor Grok assisted with reading the Phase 1 guideline, participant instructions, and challenge guide, then with implementing the provisional QAOA Max-Cut runner, tests, figures, and the first report. A later technical audit inspected the saved circuits, tables, manifest, and processor files without treating passing tests as proof of an official benchmark. A documentation pass then labeled the stored results as a provisional linear Processor A run and a 7-qubit Lagos-fragment Processor B run.
 
-A further implementation pass, also AI-assisted, added the checks and documents described in `docs/adrs.md`: separate ratio names, a routing excess that does not add explicit SWAP counts on top of CX counts, a nine-qubit schema fixture, an optional unexecuted depth-2 config, and this file. A later pass recomputed the provisional benchmark with `python scripts/run_benchmark.py` and executed `main.ipynb` in a clean kernel. Those outputs are in the tree. This paragraph records that later work. It is not a recovered prompt.
+A further implementation pass, also AI-assisted, added the checks and documents described in `docs/adrs.md`: separate ratio names, a routing excess that does not add explicit SWAP counts on top of CX counts, a nine-qubit schema fixture, an optional unexecuted depth-2 config, and this file. A later pass recomputed the provisional benchmark with `python scripts/run_benchmark.py` and executed `main.ipynb` in a clean kernel.
+
+A correction pass then replaced the executable coupling files with the undirected lists from the 21-page framework, archived the linear and Lagos outputs under `results/historical/line_lagos_5vertex/`, and reran the benchmark. This paragraph is reconstructed. It is not a recovered prompt.
 
 ## Purpose
 

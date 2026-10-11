@@ -22,10 +22,24 @@ def test_shipped_processors_load_and_match_their_graphs() -> None:
     graph_a = processor_a.networkx_graph()
     graph_b = processor_b.networkx_graph()
     assert processor_a.num_qubits == 5
+    assert set(processor_a.coupling_edges) == {(0, 1), (1, 2), (1, 3), (3, 4)}
     assert graph_a.number_of_edges() == 4
-    assert graph_a.number_of_nodes() != graph_a.number_of_edges()
-    assert processor_b.num_qubits == 7
-    assert graph_b.number_of_edges() == 6
+    assert processor_b.num_qubits == 9
+    assert set(processor_b.coupling_edges) == {
+        (0, 1),
+        (0, 8),
+        (1, 2),
+        (1, 6),
+        (2, 3),
+        (2, 5),
+        (2, 6),
+        (3, 4),
+        (4, 5),
+        (5, 6),
+        (6, 7),
+        (6, 8),
+    }
+    assert graph_b.number_of_edges() == 12
     assert processor_a.provenance["official"] is False
     assert processor_b.provenance["official"] is False
     assert processor_a.noise_model() is not None
@@ -83,7 +97,8 @@ def test_nine_qubit_schema_fixture_is_not_an_official_processor() -> None:
     assert fixture.provenance["official"] is False
     assert fixture.provenance["status"] == "schema_demonstration"
     assert fixture.identifier != shipped_b.identifier
-    assert shipped_b.num_qubits == 7
+    assert shipped_b.num_qubits == 9
+    assert set(shipped_b.coupling_edges) != set(fixture.coupling_edges)
     assert shipped_b.provenance["official"] is False
     assert fixture.noise_model() is not None
 
@@ -96,7 +111,7 @@ def test_official_processor_requires_a_challenge_kit_filename() -> None:
     payload["provenance"]["challenge_kit_file"] = "challenge-kit/processor_A.json"
     processor = processor_from_mapping(payload)
     assert processor.provenance["official"] is True
-    assert processor.coupling_edges == ((0, 1), (1, 2), (2, 3), (3, 4))
+    assert processor.coupling_edges == ((0, 1), (1, 2), (1, 3), (3, 4))
 
 
 def test_directed_edges_are_not_silently_added() -> None:
@@ -104,4 +119,4 @@ def test_directed_edges_are_not_silently_added() -> None:
     payload["connectivity"] = "directed"
     payload["gate_directionality"] = "as_listed"
     processor = processor_from_mapping(payload)
-    assert processor.directed_edges() == ((0, 1), (1, 2), (2, 3), (3, 4))
+    assert processor.directed_edges() == ((0, 1), (1, 2), (1, 3), (3, 4))

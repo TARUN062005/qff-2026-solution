@@ -2,20 +2,22 @@
   "name": "Processor B",
   "identifier": "B",
   "role": "online_phase1",
-  "num_qubits": 7,
-  "qubits": [0, 1, 2, 3, 4, 5, 6],
-  "coupling_map": [[0, 1], [1, 2], [1, 3], [3, 5], [4, 5], [5, 6]],
+  "num_qubits": 9,
+  "qubits": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+  "coupling_map": [[0, 1], [1, 2], [1, 6], [2, 3], [2, 6], [2, 5], [3, 4], [4, 5], [5, 6], [6, 7], [6, 8], [0, 8]],
   "connectivity": "undirected",
   "basis_gates": ["rz", "sx", "x", "cx"],
   "gate_directionality": "bidirectional",
   "display_positions": {
     "0": [0.0, 2.0],
-    "1": [1.0, 2.0],
-    "2": [2.0, 2.0],
-    "3": [1.0, 1.0],
-    "4": [0.0, 0.0],
-    "5": [1.0, 0.0],
-    "6": [2.0, 0.0]
+    "1": [1.2, 2.0],
+    "2": [2.4, 2.0],
+    "3": [3.4, 1.2],
+    "4": [3.0, 0.2],
+    "5": [1.8, 0.2],
+    "6": [1.2, 1.0],
+    "7": [1.2, -0.6],
+    "8": [0.0, 1.0]
   },
   "noise": {
     "label": "provisional_illustrative",
@@ -27,9 +29,9 @@
     "rz_noise": "none"
   },
   "provenance": {
-    "status": "provisional",
+    "status": "framework_coupling_map",
     "official": false,
-    "source": "The Phase 1 guideline describes Processor B as a 7-qubit heavy-hex-inspired graph and a contemporary compilation baseline, without an edge list. The undirected edges here are the published CX coupling of the 7-qubit IBM Quantum Lagos device, read from Qiskit IBM Runtime props_lagos.json pairs cx0_1, cx1_2, cx1_3, cx3_5, cx4_5, and cx5_6. That fragment is a tree, not a 6-cycle, and it is not a tracing of the qualitative challenge slide. It is a replaceable stand-in, not an organizer-issued Processor B definition. Device calibration data from Lagos are not used. Noise numbers match the illustrative Challenge Guide section 10 model used for Processor A so the noisy comparison is not confounded by unequal error rates.",
-    "noise_source": "Challenge Guide section 10 illustrative noise model, not ibm_lagos calibration data."
+    "source": "Undirected coupling edges (0,1), (1,2), (1,6), (2,3), (2,6), (2,5), (3,4), (4,5), (5,6), (6,7), (6,8), (8,0) are the Processor B list in the 21-page Universal Challenge Framework. The file stores (8,0) as (0,8). Processor_AB_Benchmark_Configuration_FINAL.pdf repeats those 12 undirected connections and says the simulation uses qubits 0 through 8. The 14-page overview diagram is captioned 7 qubits; the framework's explicit 9-qubit edge list is the list used here. This file is not the 7-qubit Lagos fragment and not processors/fixtures/nine_qubit_schema_not_official.json. Basis gates rz, sx, x, cx and both CX directions are local assumptions. The framework lists undirected edges and an example gate set, not a frozen directed calibration.",
+    "noise_source": "Illustrative Challenge Guide noise, not an official calibration. The framework says organizer-provided benchmark definitions are authoritative for the final noise model and simulator settings, and those noise numbers are not in the coupling-map list."
   }
 }

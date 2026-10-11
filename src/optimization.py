@@ -99,6 +99,8 @@ def optimize_shared_parameters(
     best_row = max(finite_rows, key=lambda row: float(row["expected_cut"]))
     parameter_keys = [key for key in best_row if key.startswith("parameter_")]
     parameters = [float(best_row[key]) for key in sorted(parameter_keys, key=lambda key: int(key.split("_")[1]))]
+    cobyla_rows = [row for row in history if row["stage"] == "cobyla"]
+    tail = [float(row["expected_cut"]) for row in cobyla_rows[-5:]]
     return {
         "method": method,
         "parameters": parameters,
@@ -106,6 +108,9 @@ def optimize_shared_parameters(
         "cobyla_success": bool(result.success),
         "cobyla_message": str(result.message),
         "cobyla_nfev": int(result.nfev),
+        "parameter_selection": "maximum expected cut across every recorded grid and COBYLA evaluation",
+        "cobyla_terminal_expected_cut": float(cobyla_rows[-1]["expected_cut"]) if cobyla_rows else None,
+        "cobyla_last_five_span": (max(tail) - min(tail)) if tail else None,
         "evaluation_count": len(history),
         "history": history,
         "gamma_upper": gamma_upper,

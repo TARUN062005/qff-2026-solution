@@ -60,6 +60,7 @@ def test_swap_count_is_separate_from_decomposed_routing() -> None:
     assert metrics["cx_count"] == 1
     assert metrics["two_qubit_count"] == 2
     assert metrics["operation_count"] == 3
+    assert metrics["single_qubit_count"] == 1
     assert explicit_swap_cx_equivalent(metrics["explicit_swap_count"]) == 3
     assert routing_overhead_cx(metrics["cx_count"], metrics["explicit_swap_count"], logical_rzz_count=1) == -1
 

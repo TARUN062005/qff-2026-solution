@@ -6,7 +6,7 @@
   "problem_code": "O1",
   "dashboard_identifier": "PS-O1",
   "problem_title": "Max-Cut on Weighted Graphs",
-  "instance_path": "data/raw/maxcut_provisional.json",
+  "instance_path": "data/raw/maxcut_custom_6vertex.json",
   "processors": {
     "A": "processors/processor_A.json",
     "B": "processors/processor_B.json"
@@ -31,5 +31,6 @@
   "layout_method": "sabre",
   "routing_method": "sabre",
   "execution_modes": ["ideal", "provisional_noise"],
-  "output_dir": "results"
+  "output_dir": "results",
+  "experiment_id": "framework-coupling-custom-6vertex-p1"
 }

@@ -8,9 +8,9 @@ The runner optimizes one logical QAOA circuit on an ideal statevector and applie
 
 ## ADR-2. Provisional processor files stay executable and unofficial
 
-`processors/processor_A.json` remains the 5-qubit path from the Challenge Guide example. `processors/processor_B.json` remains the 7-qubit Lagos CX fragment. Both have `provenance.official` false. The uploaded Processor A diagram is an unlabeled five-node tree, so no numbered star or tree was written into the executable file. The organizer correction sets Processor B at nine qubits, and the missing edges were not invented. The preserved results therefore describe the linear and Lagos models only.
+`processors/processor_A.json` now uses the framework undirected edges `(0,1), (1,2), (1,3), (3,4)`. `processors/processor_B.json` now uses the framework 9-qubit undirected list. Both keep `provenance.official` false because the noise model, directed calibration, and Max-Cut instance were not issued with those edge lists. The earlier linear and Lagos files are copied under `processors/historical/`, and that benchmark is copied under `results/historical/line_lagos_5vertex/`.
 
-Alternative considered and rejected for the executable files: tracing the unlabeled diagram or extending Lagos with two extra qubits. That would have created a guessed hardware model and invalidated the recorded hashes.
+The 14-page overview diagram captions Processor B as 7 qubits. The explicit framework edge list is the one loaded for the new run. The synthetic 9-qubit path fixture is not Processor B.
 
 ## ADR-3. Official status requires a named Challenge Kit file
 
@@ -22,7 +22,7 @@ The loader reads qubit count, edges, basis gates, and noise from JSON. It does n
 
 ## ADR-5. Expected-cut ratio and best-cut ratio are separate
 
-`approximation_ratio` and `expected_cut_approximation_ratio` are `E[C] / C_ref`. `best_cut_approximation_ratio` is `C_best / C_ref`. The current `results/tables/AB_comparison.csv` stores both. On that provisional run the best observed cut equals the provisional reference 9.5, so the best-cut ratio is 1 while the stored expected-cut ratio is about 0.824 in the ideal rows.
+`approximation_ratio` and `expected_cut_approximation_ratio` are `E[C] / C_ref`. `best_cut_approximation_ratio` is `C_best / C_ref`. The active comparison is `framework-coupling-custom-6vertex-p1` on `data/raw/maxcut_custom_6vertex.json`. That file is a participant-selected custom graph, not an organizer instance. The five-vertex comparison remains under `results/historical/framework_coupling_5vertex/`.
 
 ## ADR-6. Routing overhead is CX excess, not an inserted-SWAP count
 

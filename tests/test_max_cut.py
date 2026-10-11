@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from src.max_cut import MaxCutError, build_instance, cut_value, load_instance, solve_classical
+from src.metrics import summarize_cut_samples
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -106,6 +107,92 @@ def _separate_exhaustive_optimum(
             best_value = total
             best_assignment = assignment
     return best_value, best_assignment
+
+
+def test_complement_matches_the_optimum_and_success_counts_that_cut() -> None:
+    instance = build_instance([0, 1, 2], [(0, 1, 1.0), (1, 2, 2.0), (0, 2, 3.0)], instance_id="complement")
+    reference = solve_classical(instance)
+    complement = tuple(1 - bit for bit in reference.assignment)
+    separate = 0.0
+    for edge in instance.edges:
+        if complement[edge.u] != complement[edge.v]:
+            separate += edge.weight
+    assert math.isclose(separate, reference.objective_value)
+    summary = summarize_cut_samples(
+        [(reference.objective_value, 3), (0.0, 1)],
+        reference.objective_value,
+        True,
+    )
+    assert math.isclose(float(summary["optimal_success_probability"]), 0.75)
+
+
+def test_supplementary_five_vertex_config_is_separate() -> None:
+    import json
+
+    active = json.loads((ROOT / "config" / "experiment.json").read_text(encoding="utf-8"))
+    supplementary = json.loads(
+        (ROOT / "config" / "experiment_5vertex_supplementary.json").read_text(encoding="utf-8")
+    )
+    assert active["experiment_id"] == "framework-coupling-custom-6vertex-p1"
+    assert supplementary["experiment_id"] == "framework-coupling-supplementary-5vertex-p1"
+    assert active["output_dir"] == "results"
+    assert supplementary["output_dir"] == "results/supplementary/five_vertex_framework"
+    assert active["instance_path"] != supplementary["instance_path"]
+    provisional = load_instance(ROOT / "data" / "raw" / "maxcut_provisional.json")
+    assert supplementary["instance_path"].endswith("maxcut_provisional.json")
+    assert provisional.num_vertices == 5
+    assert provisional.official is False
+
+
+def test_custom_six_vertex_graph_is_the_active_instance() -> None:
+    import json
+
+    example = load_instance(ROOT / "data" / "raw" / "maxcut_example_6vertex.json")
+    custom = load_instance(ROOT / "data" / "raw" / "maxcut_custom_6vertex.json")
+    config = json.loads((ROOT / "config" / "experiment.json").read_text(encoding="utf-8"))
+    assert config["instance_path"].endswith("maxcut_custom_6vertex.json")
+    assert config["experiment_id"] == "framework-coupling-custom-6vertex-p1"
+    assert custom.official is False
+    assert custom.num_vertices == 6
+    assert custom.connected is True
+    assert custom.instance_id != example.instance_id
+    assert all(float(edge.weight).is_integer() and 1 <= edge.weight <= 5 for edge in custom.edges)
+    edges = [(edge.u, edge.v, edge.weight) for edge in custom.edges]
+    best = -math.inf
+    winners: list[tuple[int, ...]] = []
+    for mask in range(1 << custom.num_vertices):
+        bits = tuple((mask >> vertex) & 1 for vertex in range(custom.num_vertices))
+        total = sum(weight for u, v, weight in edges if bits[u] != bits[v])
+        if total > best:
+            best = total
+            winners = [bits]
+        elif math.isclose(total, best):
+            winners.append(bits)
+    reference = solve_classical(custom)
+    assert math.isclose(best, 21.0)
+    assert math.isclose(reference.objective_value, best)
+    assert reference.optimal is True
+    assert tuple(reference.assignment) in winners
+    assert all(tuple(1 - bit for bit in assignment) in winners for assignment in winners)
+    assert len(winners) == 4
+
+
+def test_six_vertex_example_is_not_the_benchmark_instance() -> None:
+    example = load_instance(ROOT / "data" / "raw" / "maxcut_example_6vertex.json")
+    provisional = load_instance(ROOT / "data" / "raw" / "maxcut_provisional.json")
+    assert example.official is False
+    assert example.num_vertices == 6
+    assert example.instance_id != provisional.instance_id
+    edges = [(edge.u, edge.v, edge.weight) for edge in example.edges]
+    best = -math.inf
+    for mask in range(1 << example.num_vertices):
+        bits = [(mask >> vertex) & 1 for vertex in range(example.num_vertices)]
+        total = sum(weight for u, v, weight in edges if bits[u] != bits[v])
+        if total > best:
+            best = total
+    reference = solve_classical(example)
+    assert math.isclose(reference.objective_value, best)
+    assert reference.optimal is True
 
 
 def test_provisional_instance_file() -> None:

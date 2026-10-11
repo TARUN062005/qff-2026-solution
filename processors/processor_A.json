@@ -4,16 +4,16 @@
   "role": "online_phase1",
   "num_qubits": 5,
   "qubits": [0, 1, 2, 3, 4],
-  "coupling_map": [[0, 1], [1, 2], [2, 3], [3, 4]],
+  "coupling_map": [[0, 1], [1, 2], [1, 3], [3, 4]],
   "connectivity": "undirected",
   "basis_gates": ["rz", "sx", "x", "cx"],
   "gate_directionality": "bidirectional",
   "display_positions": {
-    "0": [0.0, 0.0],
-    "1": [1.0, 0.0],
-    "2": [2.0, 0.0],
-    "3": [3.0, 0.0],
-    "4": [4.0, 0.0]
+    "0": [-1.0, 1.0],
+    "1": [0.0, 1.0],
+    "2": [1.0, 1.0],
+    "3": [0.0, 0.0],
+    "4": [0.0, -1.0]
   },
   "noise": {
     "label": "provisional_illustrative",
@@ -25,9 +25,9 @@
     "rz_noise": "none"
   },
   "provenance": {
-    "status": "provisional",
+    "status": "framework_coupling_map",
     "official": false,
-    "source": "Phase 1 Challenge Guide, section 6, illustrative toy_5q_line example: qubits 0-1-2-3-4 and basis gates rz, sx, x, cx. The guide says to replace illustrative values with the organizer-supplied definition. The Qiskit Fall Fest 2026 guideline states that Processor A has 5 qubits, a fixed baseline graph, and a synthetic noise model, but it does not list edges, directions, or error rates. The qualitative processor slide was not converted into an edge list. Noise numbers are the illustrative depolarizing and readout values in Challenge Guide section 10, applied identically on Processor A and Processor B.",
-    "noise_source": "Challenge Guide section 10 illustrative noise model, explicitly labeled there as a placeholder for official challenge assumptions."
+    "source": "Undirected coupling edges (0,1), (1,2), (1,3), (3,4) are the Processor A list in the 21-page Universal Challenge Framework (Problem_Statment_Details.pdf, Phase 1 benchmark authority). The same four undirected edges are repeated in Processor_AB_Benchmark_Configuration_FINAL.pdf, which also prints a both-directions simulation list and says that document is for organizer approval. Basis gates rz, sx, x, cx are a local assumption matching the framework example gate set X, SX, Rz, CX. Edge direction is not frozen: the framework lists undirected edges, so this file enables both CX directions. This is not the earlier linear path 0-1-2-3-4.",
+    "noise_source": "Illustrative Challenge Guide noise, not an official calibration. The 21-page framework says the organizer-provided processor definitions are the source of truth for the final noise model and simulator settings. Processor_AB_Benchmark_Configuration_FINAL.pdf states that the exact noise parameters are not verified by the processor-map materials."
   }
 }

@@ -109,6 +109,7 @@ def save_grouped_bars(
     title: str,
     path: Path,
     yerr: dict[str, list[float]] | None = None,
+    footnote: str | None = None,
 ) -> None:
     figure, axis = plt.subplots(figsize=(8.2, 4.8))
     count = len(categories)
@@ -125,7 +126,15 @@ def save_grouped_bars(
     axis.spines["top"].set_visible(False)
     axis.spines["right"].set_visible(False)
     axis.legend(frameon=False)
-    figure.tight_layout()
+    _finish_figure(figure, path, footnote)
+
+
+def _finish_figure(figure, path: Path, footnote: str | None) -> None:
+    if footnote:
+        figure.tight_layout(rect=(0.0, 0.14, 1.0, 1.0))
+        figure.text(0.01, 0.02, footnote, fontsize=8, ha="left", va="bottom")
+    else:
+        figure.tight_layout()
     _finish(figure, path)
 
 
@@ -134,6 +143,7 @@ def save_performance_chart(
     classical_optimum: float,
     ideal_qaoa_expectation: float,
     path: Path,
+    footnote: str | None = None,
 ) -> None:
     figure, axis = plt.subplots(figsize=(8.2, 4.8))
     labels = [f"{row['processor']} {row['execution_mode']}" for row in rows]
@@ -144,15 +154,14 @@ def save_performance_chart(
     axis.axhline(classical_optimum, color="#9a3412", linestyle="--", label=f"Exact optimum {classical_optimum:.4g}")
     axis.axhline(ideal_qaoa_expectation, color="#334155", linestyle=":", label=f"Ideal QAOA expectation {ideal_qaoa_expectation:.4g}")
     axis.set_ylabel("Expected cut value")
-    axis.set_title("Problem performance under the shared QAOA parameters")
+    axis.set_title("Measured problem performance")
     axis.spines["top"].set_visible(False)
     axis.spines["right"].set_visible(False)
     axis.legend(frameon=False)
-    figure.tight_layout()
-    _finish(figure, path)
+    _finish_figure(figure, path, footnote)
 
 
-def save_tradeoff_chart(rows: list[dict[str, object]], path: Path) -> None:
+def save_tradeoff_chart(rows: list[dict[str, object]], path: Path, footnote: str | None = None) -> None:
     figure, axis = plt.subplots(figsize=(7.4, 5.0))
     for row in rows:
         color = "#1f4e79" if row["processor"] == "A" else "#2e7d4f"
@@ -169,12 +178,11 @@ def save_tradeoff_chart(rows: list[dict[str, object]], path: Path) -> None:
         )
     axis.set_xlabel("Transpiled two-qubit instructions")
     axis.set_ylabel("Expected cut value")
-    axis.set_title("Circuit cost and measured solution quality")
+    axis.set_title("Measured circuit cost and solution quality")
     axis.spines["top"].set_visible(False)
     axis.spines["right"].set_visible(False)
     axis.legend(frameon=False)
-    figure.tight_layout()
-    _finish(figure, path)
+    _finish_figure(figure, path, footnote)
 
 
 def save_cut_histogram(histograms: dict[str, dict[str, int]], path: Path) -> None:

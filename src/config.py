@@ -45,6 +45,7 @@ class ExperimentConfig:
     routing_method: str
     execution_modes: tuple[str, ...]
     output_dir: Path
+    experiment_id: str
 
     def to_dict(self) -> dict[str, object]:
         return {
@@ -78,6 +79,7 @@ class ExperimentConfig:
             "routing_method": self.routing_method,
             "execution_modes": list(self.execution_modes),
             "output_dir": self.output_dir.as_posix(),
+            "experiment_id": self.experiment_id,
         }
 
 
@@ -165,6 +167,9 @@ def load_experiment_config(path: Path, root: Path) -> ExperimentConfig:
         )
     output_value = _text(payload, "output_dir")
     output_path = _resolve(root, output_value)
+    experiment_id = payload.get("experiment_id", "")
+    if not isinstance(experiment_id, str):
+        raise ConfigError("experiment_id must be a string when present.")
     return ExperimentConfig(
         team=_text(payload, "team"),
         event=_text(payload, "event"),
@@ -187,4 +192,5 @@ def load_experiment_config(path: Path, root: Path) -> ExperimentConfig:
         routing_method=_text(payload, "routing_method"),
         execution_modes=tuple(str(mode) for mode in modes),
         output_dir=output_path,
+        experiment_id=experiment_id,
     )

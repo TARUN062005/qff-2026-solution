@@ -1,0 +1,72 @@
+{
+  "instance": {
+    "instance_id": "provisional-weighted-maxcut-5",
+    "official": false,
+    "problem_statement": {
+      "track": "Quantum Optimization",
+      "organizer_code": "O1",
+      "dashboard_identifier": "PS-O1",
+      "title": "Max-Cut on Weighted Graphs"
+    },
+    "provenance": "Participant-defined provisional weighted graph. The supplied Phase 1 documents name O1 Max-Cut but do not include an official vertex set, edge list, weights, QAOA depth, shot count, or optimizer budget. This file is the controlled instance for the local provisional benchmark and must be replaced when the Challenge Kit instance is issued. It is not a substitute labeled as official.",
+    "vertices": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "edges": [
+      {
+        "u": 0,
+        "v": 1,
+        "weight": 1.0
+      },
+      {
+        "u": 1,
+        "v": 2,
+        "weight": 2.0
+      },
+      {
+        "u": 2,
+        "v": 3,
+        "weight": 1.0
+      },
+      {
+        "u": 3,
+        "v": 4,
+        "weight": 2.0
+      },
+      {
+        "u": 0,
+        "v": 4,
+        "weight": 3.0
+      },
+      {
+        "u": 0,
+        "v": 2,
+        "weight": 1.5
+      },
+      {
+        "u": 1,
+        "v": 3,
+        "weight": 0.5
+      }
+    ],
+    "constraints": [],
+    "connected": true
+  },
+  "classical_reference": {
+    "objective_value": 9.5,
+    "assignment": [
+      1,
+      1,
+      0,
+      1,
+      0
+    ],
+    "cut_value": 9.5,
+    "method": "exhaustive_enumeration",
+    "optimal": true
+  }
+}

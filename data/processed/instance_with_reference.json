@@ -1,6 +1,6 @@
 {
   "instance": {
-    "instance_id": "provisional-weighted-maxcut-5",
+    "instance_id": "participant-custom-weighted-maxcut-6",
     "official": false,
     "problem_statement": {
       "track": "Quantum Optimization",
@@ -8,13 +8,14 @@
       "dashboard_identifier": "PS-O1",
       "title": "Max-Cut on Weighted Graphs"
     },
-    "provenance": "Participant-defined provisional weighted graph. The supplied Phase 1 documents name O1 Max-Cut but do not include an official vertex set, edge list, weights, QAOA depth, shot count, or optimizer budget. This file is the controlled instance for the local provisional benchmark and must be replaced when the Challenge Kit instance is issued. It is not a substitute labeled as official.",
+    "provenance": "Participant-selected custom graph. It has 6 vertices and integer edge weights from 1 to 5. The 21-page framework allows one custom graph and describes a 6-vertex task, but it does not include a designated edge list. This file is not an organizer-provided instance and must not be reported as the official O1 graph.",
     "vertices": [
       0,
       1,
       2,
       3,
-      4
+      4,
+      5
     ],
     "edges": [
       {
@@ -30,42 +31,58 @@
       {
         "u": 2,
         "v": 3,
-        "weight": 1.0
+        "weight": 3.0
       },
       {
         "u": 3,
         "v": 4,
+        "weight": 4.0
+      },
+      {
+        "u": 4,
+        "v": 5,
+        "weight": 5.0
+      },
+      {
+        "u": 5,
+        "v": 0,
         "weight": 2.0
       },
       {
         "u": 0,
-        "v": 4,
+        "v": 2,
         "weight": 3.0
       },
       {
-        "u": 0,
-        "v": 2,
-        "weight": 1.5
+        "u": 2,
+        "v": 4,
+        "weight": 1.0
       },
       {
         "u": 1,
         "v": 3,
-        "weight": 0.5
+        "weight": 4.0
+      },
+      {
+        "u": 3,
+        "v": 5,
+        "weight": 2.0
       }
     ],
     "constraints": [],
     "connected": true
   },
   "classical_reference": {
-    "objective_value": 9.5,
+    "objective_value": 21.0,
     "assignment": [
       1,
       1,
       0,
+      0,
       1,
       0
     ],
-    "cut_value": 9.5,
+    "cut_value": 21.0,
     "method": "exhaustive_enumeration",
     "optimal": true
   }

@@ -1,0 +1,3 @@
+processor,placement_feasible,measured,physical_qubits,logical_qubits,reason
+A,True,True,5,5,
+B,True,True,9,5,

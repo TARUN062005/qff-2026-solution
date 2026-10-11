@@ -1,31 +1,4 @@
 {
-  "final_index_layout": [
-    3,
-    0,
-    2,
-    1,
-    4
-  ],
-  "measurement_decoder": [
-    [
-      0,
-      0
-    ],
-    [
-      1,
-      1
-    ],
-    [
-      2,
-      2
-    ],
-    [
-      3,
-      3
-    ],
-    [
-      4,
-      4
-    ]
-  ]
+  "placement_feasible": false,
+  "placement_error": "Processor A has 5 qubits and the logical circuit needs 6. No shots or transpiled metrics were produced for this processor."
 }

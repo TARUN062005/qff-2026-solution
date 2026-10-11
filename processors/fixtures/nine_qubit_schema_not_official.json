@@ -20,6 +20,6 @@
   "provenance": {
     "status": "schema_demonstration",
     "official": false,
-    "source": "Synthetic 9-qubit path used only to show that the loader accepts a nine-qubit configuration. These edges are not the official Processor B coupling map, they were not inferred from a diagram, and the noise numbers are the same illustrative schema values used elsewhere. They are not organizer measurements."
+    "source": "Synthetic 9-qubit path used only to show that the loader accepts a nine-qubit configuration. These edges are not the framework Processor B list and are not processors/processor_B.json. The noise numbers are illustrative schema values, not organizer measurements."
   }
 }

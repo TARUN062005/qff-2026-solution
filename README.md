@@ -31,7 +31,7 @@ ideal statevector parameter search
         +------------------+
         v                  v
    Processor A        Processor B
-   path, 5 qubits     Lagos-class fragment, 7 qubits
+   framework 5-qubit  framework 9-qubit list
         |                  |
         v                  v
    Sabre compile      Sabre compile
@@ -46,7 +46,7 @@ ideal statevector parameter search
 
 ## QAOA formulation
 
-The cost Hamiltonian is the sum over edges of `w_uv * (I - Z_u Z_v) / 2`. Its computational-basis value is the weighted cut. The mixer is the sum of `X` on every vertex. Each layer applies `RZZ(-gamma * w_uv)` and then `RX(2 * beta)`. The run uses depth `p = 1` because the documents do not specify a depth. Parameters are optimized once on the logical statevector and then reused on both processors. That is a shared-parameter architecture comparison, not two independent optimizations.
+The cost Hamiltonian is the sum over edges of `w_uv * (I - Z_u Z_v) / 2`. Its computational-basis value is the weighted cut. The mixer is the sum of `X` on every vertex. Each layer applies `RZZ(-gamma * w_uv)` and then `RX(2 * beta)`. The run uses depth `p = 1` because the documents do not specify a depth. Parameters are optimized once on the logical statevector and then offered to both processors. A processor is not executed when it has fewer physical qubits than the logical circuit, and its measurements are not copied from the other processor.
 
 The search is a 21 by 21 grid of `gamma` in `[0, pi]` and `beta` in `[0, pi/2]`, followed by COBYLA with at most 40 iterations. COBYLA stopped because it reached that evaluation cap (`success` is false in the manifest). The reported parameters are the best finite objective seen across the grid and COBYLA, 481 evaluations in total:
 
@@ -56,16 +56,14 @@ The search is a 21 by 21 grid of `gamma` in `[0, pi]` and `beta` in `[0, pi/2]`,
 
 ## Processors
 
-Both executable definitions used for the recorded results are provisional. Processor A was the 5-qubit linear path. Processor B was the 7-qubit Lagos fragment. Those configurations do not represent the final organizer-confirmed architectures.
-
-The uploaded Processor A diagram is an unlabeled five-node tree, so its exact numbered coupling map remains unverified. The organizer later corrected Processor B to nine qubits. That count takes precedence, and the full nine-qubit coupling map has not been supplied. The noise model and the Max-Cut graph are illustrative and provisional. `official_benchmark_complete` remains false.
+The current executable coupling lists come from the 21-page framework. Processor A has undirected edges `(0,1), (1,2), (1,3), (3,4)`. Processor B has the 12-edge 9-qubit list. Basis gates, both CX directions, and the noise model remain provisional. The active graph is the custom six-vertex file. The 14-page overview diagram captions Processor B as 7 qubits. `official_benchmark_complete` remains false. A separate five-vertex run, `framework-coupling-supplementary-5vertex-p1`, is written only under `results/supplementary/five_vertex_framework/`. The earlier linear and Lagos run is in `results/historical/line_lagos_5vertex/`.
 
 | | Processor A | Processor B |
 | --- | --- | --- |
-| Qubits | 5 | 7 |
-| Edges | `0-1-2-3-4` (4 edges) | `0-1`, `1-2`, `1-3`, `3-5`, `4-5`, `5-6` (6 edges) |
-| Provenance | Challenge Guide illustrative path | Published `ibm_lagos` CX pairs from Qiskit IBM Runtime `props_lagos.json` |
-| Basis | `rz`, `sx`, `x`, `cx`, both CX directions | same basis, both CX directions |
+| Qubits | 5 | 9 |
+| Edges | `(0,1), (1,2), (1,3), (3,4)` | framework 12-edge list, including `(0,8)` |
+| Provenance | 21-page framework undirected list | 21-page framework undirected list |
+| Basis | local assumption `rz`, `sx`, `x`, `cx`, both CX directions | same local assumption |
 | Official | false | false |
 
 Noise, when enabled, is the Challenge Guide section 10 illustration on both processors: depolarizing probability 0.001 on `x` and `sx`, 0.01 on `cx`, readout `[[0.99, 0.01], [0.02, 0.98]]`, and no error on `rz`. Ideal runs do not use that model. Lagos calibration data are not used. These simulations are not IBM QPU executions.
@@ -74,39 +72,36 @@ Details are in `docs/processor_specifications.md` and `docs/methodology.md`.
 
 ## Transpilation
 
-Both processors use optimization level 1, Sabre layout, Sabre routing, and transpiler seed `20261010`. One logical `RZZ` becomes two `CX` gates on an all-to-all device with this basis. Routing overhead is the transpiled CX count minus twice the logical RZZ count. Explicit SWAP instructions are counted separately and are not added to that excess, so decomposed SWAP CX gates are not charged again. After basis translation the explicit SWAP count in the preserved run is zero. The extra CX gates are the routing and decomposition residue under this optimization level, not a direct inserted-SWAP count. Compiler optimization can also change the CX count. Measurement bits are mapped back to logical vertices with the final layout.
+Both processors use optimization level 1, Sabre layout, Sabre routing, and transpiler seed `20261010`. One logical `RZZ` becomes two `CX` gates on an all-to-all device with this basis. Routing overhead is the transpiled CX count minus twice the logical RZZ count. Explicit SWAP instructions are counted separately and are not added to that excess, so decomposed SWAP CX gates are not charged again. CX excess is the transpiled CX count minus twice the logical RZZ count. It is not a literal SWAP count. A zero explicit SWAP count does not mean the routing overhead is zero. Compiler optimization can also change the CX count. Measurement bits are mapped back to logical vertices with the final layout.
 
-The approximation ratio in the preserved table is `E[C] / C_ref`. The best observed cut on every preserved row is 9.5, so `C_best / C_ref` is 1 for this provisional reference. Those are different ratios.
+`E[C] / C_ref` and `C_best / C_ref` are different ratios.
 
-## Measured A/B results
+## Measured results
 
-These figures are the preserved provisional run on the 5-qubit linear Processor A model and the 7-qubit Lagos-fragment Processor B model. They are not results for the organizer-confirmed architectures. Shots: 4096. Simulator seed: `20261010`. Authoritative rows are in `results/tables/AB_comparison.csv`. Rounded values:
+These figures are the run `framework-coupling-custom-6vertex-p1`. The graph is the participant-selected custom six-vertex instance, not an organizer graph. The exact optimum is 21. Shots: 4096. Simulator seed: `20261010`. Noise remains the illustrative provisional model. Authoritative rows are in `results/tables/AB_comparison.csv`.
+
+Processor A has 5 physical qubits. The logical circuit needs 6, so Processor A was not executed and no Processor A shot or transpiled metrics were written. Processor B has 9 physical qubits and was executed with the same shared parameters.
 
 | Metric | Processor A | Processor B |
 | --- | ---: | ---: |
-| Logical depth | 8 | 8 |
-| Transpiled depth | 33 | 41 |
-| Logical two-qubit gates (`RZZ`) | 7 | 7 |
-| Transpiled two-qubit gates (`CX`) | 27 | 21 |
-| Explicit SWAP count | 0 | 0 |
-| CX-equivalent routing overhead | 13 | 7 |
-| Physical qubits allocated | 5 | 7 |
-| Physical qubits used | 5 | 5 |
-| Ancillas outside the logical layout | 0 | 0 |
-| Ideal expected cut (SE) | 7.8300 (0.0275) | 7.8300 (0.0275) |
-| Ideal E[C]/C_ref | 0.8242 | 0.8242 |
-| Ideal optimum-shot probability (SE) | 0.2485 (0.0068) | 0.2485 (0.0068) |
-| Provisional-noise expected cut (SE) | 7.3936 (0.0305) | 7.4502 (0.0302) |
-| Provisional-noise E[C]/C_ref | 0.7783 | 0.7842 |
-| Best observed cut, every mode | 9.5 | 9.5 |
+| Placement | not executed (5 qubits, circuit needs 6) | executed |
+| Logical depth | 10, shared circuit | 10 |
+| Transpiled depth | — | 48 |
+| Logical single-qubit gates | 12, shared circuit | 12 |
+| Transpiled single-qubit gates | — | 58 |
+| Logical two-qubit gates (`RZZ`) | 10, shared circuit | 10 |
+| Transpiled CX count | — | 26 |
+| Explicit SWAP count | — | 0 |
+| CX excess over 2 CX per RZZ | — | 6 |
+| Physical qubits allocated / used | 5 / not used | 9 / 6 |
+| Ideal expected cut (SE) | — | 17.7227 (0.0491) |
+| Ideal E[C]/C_ref | — | 0.8439 |
+| Ideal optimal-bitstring probability (SE) | — | 0.2632 (0.0069) |
+| Provisional-noise expected cut (SE) | — | 16.9597 (0.0566) |
+| Provisional-noise E[C]/C_ref | — | 0.8076 |
+| Best observed cut | — | 21 |
 
-The ideal histograms for A and B matched in this seeded run. The transpiled OpenQASM does not match: A has 27 CX gates and B has 21. Both ideal shot means sit within four standard errors of the statevector value 7.8151. On these settings, compilation preserved the logical measurement distribution, and the architecture difference shows up in the compiled circuit.
-
-Processor B used fewer CX gates and a smaller routing overhead. Its transpiled depth was 41 against 33 on Processor A, so the lower two-qubit count did not produce a shorter critical path. Processor B allocated two physical qubits that the final circuit did not use.
-
-Under the shared illustrative noise model, Processor A's noisy expected cut is lower, in the direction predicted by its extra CX gates. The gap is about 0.057 against a combined standard error of about 0.043, so it stays inside two combined standard errors. This run does not resolve a noisy quality difference.
-
-These two small provisional models do not establish a general ranking of connectivities.
+The ideal Processor B shot mean sits near the statevector value 17.8055. COBYLA stopped at `MAXFUN`; the saved parameters are the best recorded evaluation. There is no A-versus-B noisy gap in this run, because Processor A produced no shots. The five-vertex comparison that used these same processor maps is a separate experiment, `framework-coupling-supplementary-5vertex-p1`, under `results/supplementary/five_vertex_framework/`. Its optimum is 9.5, and both processors were executed there. Those numbers are not Processor A results for the six-vertex graph.
 
 ## Installation
 
@@ -149,11 +144,10 @@ Run the notebook from the repository root so `Path.cwd()` is the project directo
 
 ## Limitations
 
-- The stored benchmark is a provisional run on the 5-qubit linear Processor A model and the 7-qubit Lagos-fragment Processor B model. Those configurations do not represent the final organizer-confirmed architectures.
-- The Processor A diagram is an unlabeled five-node tree. Its exact numbered coupling map remains unverified.
-- Processor B must use nine qubits according to the organizer's correction. The full coupling map has not been supplied.
-- The current noise model and Max-Cut graph are illustrative and provisional. `official_benchmark_complete` remains false.
-- Official Processor A edges, the nine-qubit Processor B edges, noise rates, the O1 graph, QAOA depth, and the shot budget were not in the supplied documents.
+- The active graph is the participant-selected custom six-vertex file `data/raw/maxcut_custom_6vertex.json`. Its optimum 21 is not an official O1 optimum. `official_benchmark_complete` remains false.
+- The coupling lists are the undirected framework maps. Basis gates, both CX directions, and the noise model are local assumptions.
+- Processor A cannot place the 6-qubit logical circuit. The earlier five-vertex A/B comparison remains archived.
+- The 14-page overview diagram captions Processor B as 7 qubits. The executable file uses the 9-qubit framework list.
 - The configured noise rates are identical on purpose. A real device comparison could differ in gate errors as well as connectivity.
 - One Sabre seed is one layout sample.
 - COBYLA stopped at its evaluation cap. The kept parameters are the best evaluated point, not a claim that the local solver certified a global maximum.
@@ -166,7 +160,7 @@ Run the notebook from the repository root so `Path.cwd()` is the project directo
 3. Phase 1 challenge guide, geometry-aware processor starter.
 4. Farhi, Goldstone, and Gutmann, A Quantum Approximate Optimization Algorithm, arXiv:1411.4028.
 5. IBM Quantum, The IBM Quantum heavy hex lattice.
-6. Qiskit IBM Runtime `props_lagos.json` for the 7-qubit CX pairs used as the provisional Processor B graph.
+6. Qiskit IBM Runtime `props_lagos.json`, cited only for the archived 7-qubit fragment under `processors/historical/`. It is not the current Processor B map.
 
 ## AI assistance
 
@@ -174,4 +168,4 @@ Cursor Grok assisted with the implementation, tests, figures, and documentation.
 
 ## Publishing to GitHub
 
-The local `main` branch tracks `origin` at `https://github.com/TARUN062005/qff-2026-solution.git`. At the submission audit, `git ls-remote origin HEAD` returned the same commit as local `HEAD`, `b9b23d943d42922bdffc31fdbe4686383de0f68c`. Later documentation edits are local until they are committed and pushed. Do not commit tokens or credential files. This tree does not contain any. Confirm the repository is visible to the judges before submitting the URL.
+The local `main` branch tracks `origin` at `https://github.com/TARUN062005/qff-2026-solution.git`. The last commit is `db56aa6`. Uncommitted work is still only in the working tree. Do not commit tokens or credential files. This tree does not contain any. Confirm the repository is visible to the judges before submitting the URL.

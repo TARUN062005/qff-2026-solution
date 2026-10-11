@@ -1,0 +1,516 @@
+{
+  "success": true,
+  "official_benchmark_complete": false,
+  "blocking_specifications": [
+    "Processor A coupling edges are the undirected framework list (0,1), (1,2), (1,3), (3,4). Basis gates and both CX directions are a local assumption. Official directed calibration was not supplied.",
+    "Processor B coupling edges are the undirected 9-qubit framework list. The 14-page overview diagram is captioned 7 qubits. Basis gates and both CX directions are a local assumption.",
+    "The noise rates are the illustrative Challenge Guide model. The framework says organizer benchmark definitions are authoritative for the final noise model, and those parameters were not in the coupling-map documents.",
+    "The executed Max-Cut graph is the provisional 5-vertex file. The framework describes a 6-vertex task and example graphs with integer weights, but it does not include a designated edge list. The optimum of the executed graph is not an official O1 optimum.",
+    "QAOA depth 1 with a deterministic grid and COBYLA is the selected reproducible policy. The framework permits p=1 or p=2. It does not require SamplerV2."
+  ],
+  "team": "Q-TEAM",
+  "event": "Qiskit Fall Fest 2026",
+  "phase": "Phase 1",
+  "track": "Quantum Optimization",
+  "problem_code": "O1",
+  "dashboard_identifier": "PS-O1",
+  "problem_title": "Max-Cut on Weighted Graphs",
+  "comparison_type": "shared_parameter_architecture_comparison",
+  "experiment_id": "framework-coupling-provisional-5vertex-p1",
+  "stage": "complete",
+  "started_utc": "2026-10-11T15:01:10.321397+00:00",
+  "finished_utc": "2026-10-11T15:01:11.677504+00:00",
+  "config_path": "config/experiment.json",
+  "config_sha256": "3e64c48720589c46cf4437dd9ac8d6c386f9acbf257ef4354ba80a2307aabfac",
+  "settings": {
+    "team": "Q-TEAM",
+    "event": "Qiskit Fall Fest 2026",
+    "phase": "Phase 1",
+    "track": "Quantum Optimization",
+    "problem_code": "O1",
+    "dashboard_identifier": "PS-O1",
+    "problem_title": "Max-Cut on Weighted Graphs",
+    "instance_path": "data/raw/maxcut_provisional.json",
+    "processors": {
+      "A": "processors/processor_A.json",
+      "B": "processors/processor_B.json"
+    },
+    "qaoa_depth": 1,
+    "comparison_type": "shared_parameter_architecture_comparison",
+    "optimizer": {
+      "method": "grid_then_cobyla",
+      "grid_gamma_points": 21,
+      "grid_beta_points": 21,
+      "gamma_upper": 3.141592653589793,
+      "beta_upper": 1.5707963267948966,
+      "cobyla_maxiter": 40,
+      "cobyla_rhobeg": 0.2,
+      "cobyla_tol": 1e-06
+    },
+    "initial_parameters": [
+      0.6,
+      0.4
+    ],
+    "shots": 4096,
+    "optimization_level": 1,
+    "seed_transpiler": 20261010,
+    "seed_simulator": 20261010,
+    "layout_method": "sabre",
+    "routing_method": "sabre",
+    "execution_modes": [
+      "ideal",
+      "provisional_noise"
+    ],
+    "output_dir": "results",
+    "experiment_id": "framework-coupling-provisional-5vertex-p1"
+  },
+  "execution_modes": [
+    "ideal",
+    "provisional_noise"
+  ],
+  "shots": 4096,
+  "optimization_level": 1,
+  "layout_method": "sabre",
+  "routing_method": "sabre",
+  "seed_transpiler": 20261010,
+  "seed_simulator": 20261010,
+  "basis_gates_identical": true,
+  "noise_rates_identical": true,
+  "instance": {
+    "instance_id": "provisional-weighted-maxcut-5",
+    "official": false,
+    "sha256": "8e163ca9eb6d4571cb1491a8299b3986de4266a2b0234d31d904346f48f8739d",
+    "num_vertices": 5,
+    "num_edges": 7,
+    "connected": true,
+    "provenance": "Participant-defined provisional weighted graph. The supplied Phase 1 documents name O1 Max-Cut but do not include an official vertex set, edge list, weights, QAOA depth, shot count, or optimizer budget. This file is the controlled instance for the local provisional benchmark and must be replaced when the Challenge Kit instance is issued. It is not a substitute labeled as official."
+  },
+  "classical_reference": {
+    "objective_value": 9.5,
+    "assignment": [
+      1,
+      1,
+      0,
+      1,
+      0
+    ],
+    "cut_value": 9.5,
+    "method": "exhaustive_enumeration",
+    "optimal": true
+  },
+  "qaoa": {
+    "depth": 1,
+    "method": "grid_then_cobyla",
+    "parameters": [
+      0.36578315088218344,
+      0.37018328088858676
+    ],
+    "ideal_expected_cut": 7.815126787191614,
+    "evaluation_count": 481,
+    "cobyla_success": false,
+    "cobyla_message": "Return from COBYLA because the objective function has been evaluated MAXFUN times.",
+    "cobyla_nfev": 40,
+    "parameter_selection": "maximum expected cut across every recorded grid and COBYLA evaluation",
+    "cobyla_terminal_expected_cut": 7.815126787095765,
+    "cobyla_last_five_span": 2.1171651098939037e-09,
+    "configured_initial_parameters": [
+      0.6,
+      0.4
+    ],
+    "parameter_source": "shared ideal statevector optimization, applied unchanged to both processors"
+  },
+  "processors": {
+    "A": {
+      "name": "Processor A",
+      "identifier": "A",
+      "official": false,
+      "provenance_status": "framework_coupling_map",
+      "provenance_source": "Undirected coupling edges (0,1), (1,2), (1,3), (3,4) are the Processor A list in the 21-page Universal Challenge Framework (Problem_Statment_Details.pdf, Phase 1 benchmark authority). The same four undirected edges are repeated in Processor_AB_Benchmark_Configuration_FINAL.pdf, which also prints a both-directions simulation list and says that document is for organizer approval. Basis gates rz, sx, x, cx are a local assumption matching the framework example gate set X, SX, Rz, CX. Edge direction is not frozen: the framework lists undirected edges, so this file enables both CX directions. This is not the earlier linear path 0-1-2-3-4.",
+      "num_qubits": 5,
+      "coupling_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "basis_gates": [
+        "rz",
+        "sx",
+        "x",
+        "cx"
+      ],
+      "noise": {
+        "label": "provisional_illustrative",
+        "one_qubit_depolarizing_probability": 0.001,
+        "one_qubit_gates": [
+          "x",
+          "sx"
+        ],
+        "two_qubit_depolarizing_probability": 0.01,
+        "two_qubit_gates": [
+          "cx"
+        ],
+        "readout_probabilities": [
+          [
+            0.99,
+            0.01
+          ],
+          [
+            0.02,
+            0.98
+          ]
+        ],
+        "rz_noise": "none"
+      },
+      "sha256": "bfc9bb81ab637787cb8c4f1434b5b1f53666de8754b5b0c7a18f23aecf2e0b0e",
+      "instance_sha256": "8e163ca9eb6d4571cb1491a8299b3986de4266a2b0234d31d904346f48f8739d",
+      "resources": {
+        "logical_depth": 8,
+        "transpiled_depth": 41,
+        "logical_operation_count": 17,
+        "transpiled_operation_count": 68,
+        "logical_single_qubit_count": 10,
+        "transpiled_single_qubit_count": 47,
+        "logical_two_qubit_count": 7,
+        "transpiled_two_qubit_count": 21,
+        "cx_count": 21,
+        "explicit_swap_count": 0,
+        "explicit_swap_cx_equivalent": 0,
+        "logical_rzz_count": 7,
+        "cx_excess_over_rzz_baseline": 7,
+        "routing_overhead_cx": 7,
+        "logical_qubits": 5,
+        "physical_qubits_allocated": 5,
+        "physical_qubits_used": 5,
+        "ancillas_used": 0,
+        "compilation_seconds": 0.09224200004246086,
+        "final_index_layout": [
+          1,
+          4,
+          0,
+          3,
+          2
+        ],
+        "measurement_decoder": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "executions": {
+        "ideal": {
+          "shots": 4096,
+          "expected_cut": 7.8284912109375,
+          "expected_cut_standard_error": 0.02751516300799585,
+          "best_observed_cut": 9.5,
+          "approximation_ratio": 0.8240517064144737,
+          "expected_cut_approximation_ratio": 0.8240517064144737,
+          "best_cut_approximation_ratio": 1.0,
+          "approximation_ratio_standard_error": 0.0028963329482100896,
+          "approximation_reference": "exact_optimum",
+          "optimal_success_probability": 0.26318359375,
+          "optimal_success_standard_error": 0.006880643807931757,
+          "histogram": {
+            "0": 30,
+            "3.5": 44,
+            "4": 36,
+            "4.5": 270,
+            "5": 9,
+            "5.5": 74,
+            "6": 378,
+            "7": 824,
+            "8.5": 707,
+            "9": 646,
+            "9.5": 1078
+          },
+          "execution_seconds": 0.022190399991814047,
+          "seed_simulator": 20261010,
+          "simulator": "qiskit_aer.AerSimulator",
+          "noise_model": "none",
+          "consistent_with_statevector": true
+        },
+        "provisional_noise": {
+          "shots": 4096,
+          "expected_cut": 7.440185546875,
+          "expected_cut_standard_error": 0.03079787822676814,
+          "best_observed_cut": 9.5,
+          "approximation_ratio": 0.7831774259868421,
+          "expected_cut_approximation_ratio": 0.7831774259868421,
+          "best_cut_approximation_ratio": 1.0,
+          "approximation_ratio_standard_error": 0.003241881918607173,
+          "approximation_reference": "exact_optimum",
+          "optimal_success_probability": 0.224365234375,
+          "optimal_success_standard_error": 0.006518181377608271,
+          "histogram": {
+            "0": 36,
+            "3.5": 137,
+            "4": 55,
+            "4.5": 364,
+            "5": 93,
+            "5.5": 119,
+            "6": 405,
+            "7": 775,
+            "8.5": 609,
+            "9": 584,
+            "9.5": 919
+          },
+          "execution_seconds": 0.04787360003683716,
+          "seed_simulator": 20261010,
+          "simulator": "qiskit_aer.AerSimulator",
+          "noise_model": "provisional_illustrative"
+        }
+      }
+    },
+    "B": {
+      "name": "Processor B",
+      "identifier": "B",
+      "official": false,
+      "provenance_status": "framework_coupling_map",
+      "provenance_source": "Undirected coupling edges (0,1), (1,2), (1,6), (2,3), (2,6), (2,5), (3,4), (4,5), (5,6), (6,7), (6,8), (8,0) are the Processor B list in the 21-page Universal Challenge Framework. The file stores (8,0) as (0,8). Processor_AB_Benchmark_Configuration_FINAL.pdf repeats those 12 undirected connections and says the simulation uses qubits 0 through 8. The 14-page overview diagram is captioned 7 qubits; the framework's explicit 9-qubit edge list is the list used here. This file is not the 7-qubit Lagos fragment and not processors/fixtures/nine_qubit_schema_not_official.json. Basis gates rz, sx, x, cx and both CX directions are local assumptions. The framework lists undirected edges and an example gate set, not a frozen directed calibration.",
+      "num_qubits": 9,
+      "coupling_edges": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          6
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          5,
+          6
+        ],
+        [
+          6,
+          7
+        ],
+        [
+          6,
+          8
+        ],
+        [
+          0,
+          8
+        ]
+      ],
+      "basis_gates": [
+        "rz",
+        "sx",
+        "x",
+        "cx"
+      ],
+      "noise": {
+        "label": "provisional_illustrative",
+        "one_qubit_depolarizing_probability": 0.001,
+        "one_qubit_gates": [
+          "x",
+          "sx"
+        ],
+        "two_qubit_depolarizing_probability": 0.01,
+        "two_qubit_gates": [
+          "cx"
+        ],
+        "readout_probabilities": [
+          [
+            0.99,
+            0.01
+          ],
+          [
+            0.02,
+            0.98
+          ]
+        ],
+        "rz_noise": "none"
+      },
+      "sha256": "b44c7415700fe0fa8ab16553fc7861ba74d3165c3e71f583529246217e291fd5",
+      "instance_sha256": "8e163ca9eb6d4571cb1491a8299b3986de4266a2b0234d31d904346f48f8739d",
+      "resources": {
+        "logical_depth": 8,
+        "transpiled_depth": 29,
+        "logical_operation_count": 17,
+        "transpiled_operation_count": 64,
+        "logical_single_qubit_count": 10,
+        "transpiled_single_qubit_count": 47,
+        "logical_two_qubit_count": 7,
+        "transpiled_two_qubit_count": 17,
+        "cx_count": 17,
+        "explicit_swap_count": 0,
+        "explicit_swap_cx_equivalent": 0,
+        "logical_rzz_count": 7,
+        "cx_excess_over_rzz_baseline": 3,
+        "routing_overhead_cx": 3,
+        "logical_qubits": 5,
+        "physical_qubits_allocated": 9,
+        "physical_qubits_used": 5,
+        "ancillas_used": 0,
+        "compilation_seconds": 0.01218920003157109,
+        "final_index_layout": [
+          2,
+          7,
+          1,
+          6,
+          5
+        ],
+        "measurement_decoder": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            2
+          ],
+          [
+            3,
+            3
+          ],
+          [
+            4,
+            4
+          ]
+        ]
+      },
+      "executions": {
+        "ideal": {
+          "shots": 4096,
+          "expected_cut": 7.8284912109375,
+          "expected_cut_standard_error": 0.02751516300799585,
+          "best_observed_cut": 9.5,
+          "approximation_ratio": 0.8240517064144737,
+          "expected_cut_approximation_ratio": 0.8240517064144737,
+          "best_cut_approximation_ratio": 1.0,
+          "approximation_ratio_standard_error": 0.0028963329482100896,
+          "approximation_reference": "exact_optimum",
+          "optimal_success_probability": 0.26318359375,
+          "optimal_success_standard_error": 0.006880643807931757,
+          "histogram": {
+            "0": 30,
+            "3.5": 44,
+            "4": 36,
+            "4.5": 270,
+            "5": 9,
+            "5.5": 74,
+            "6": 378,
+            "7": 824,
+            "8.5": 707,
+            "9": 646,
+            "9.5": 1078
+          },
+          "execution_seconds": 0.013642699981573969,
+          "seed_simulator": 20261010,
+          "simulator": "qiskit_aer.AerSimulator",
+          "noise_model": "none",
+          "consistent_with_statevector": true
+        },
+        "provisional_noise": {
+          "shots": 4096,
+          "expected_cut": 7.48681640625,
+          "expected_cut_standard_error": 0.030398486462533795,
+          "best_observed_cut": 9.5,
+          "approximation_ratio": 0.7880859375,
+          "expected_cut_approximation_ratio": 0.7880859375,
+          "best_cut_approximation_ratio": 1.0,
+          "approximation_ratio_standard_error": 0.003199840680266715,
+          "approximation_reference": "exact_optimum",
+          "optimal_success_probability": 0.228271484375,
+          "optimal_success_standard_error": 0.006558101461129678,
+          "histogram": {
+            "0": 34,
+            "3.5": 119,
+            "4": 56,
+            "4.5": 357,
+            "5": 89,
+            "5.5": 113,
+            "6": 395,
+            "7": 787,
+            "8.5": 616,
+            "9": 595,
+            "9.5": 935
+          },
+          "execution_seconds": 0.04427929996745661,
+          "seed_simulator": 20261010,
+          "simulator": "qiskit_aer.AerSimulator",
+          "noise_model": "provisional_illustrative"
+        }
+      }
+    }
+  },
+  "environment": {
+    "python": "3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:12:12) [MSC v.1938 64 bit (AMD64)]",
+    "packages": {
+      "qiskit": "2.5.2",
+      "qiskit-aer": "0.17.2",
+      "numpy": "2.4.6",
+      "scipy": "1.17.1",
+      "networkx": "3.6.1",
+      "matplotlib": "3.11.2",
+      "pillow": "12.3.0",
+      "pylatexenc": "2.11"
+    }
+  },
+  "hardware_execution": false,
+  "artifacts": {
+    "report": "report.md",
+    "tables": "results/tables",
+    "figures": "results/figures",
+    "circuits": "results/circuits"
+  }
+}

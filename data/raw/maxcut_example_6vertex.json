@@ -1,0 +1,23 @@
+{
+  "instance_id": "participant-example-weighted-maxcut-6",
+  "official": false,
+  "problem_statement": {
+    "track": "Quantum Optimization",
+    "organizer_code": "O1",
+    "dashboard_identifier": "PS-O1",
+    "title": "Max-Cut on Weighted Graphs"
+  },
+  "provenance": "Earlier participant-created 6-vertex example with integer weights from 1 to 5. It is not wired into config/experiment.json. The active custom graph is data/raw/maxcut_custom_6vertex.json. Neither file is an organizer-provided O1 instance.",
+  "vertices": [0, 1, 2, 3, 4, 5],
+  "edges": [
+    {"u": 0, "v": 1, "weight": 1},
+    {"u": 1, "v": 2, "weight": 2},
+    {"u": 2, "v": 3, "weight": 3},
+    {"u": 3, "v": 4, "weight": 4},
+    {"u": 4, "v": 5, "weight": 5},
+    {"u": 5, "v": 0, "weight": 2},
+    {"u": 0, "v": 3, "weight": 1},
+    {"u": 1, "v": 4, "weight": 3}
+  ],
+  "constraints": []
+}
